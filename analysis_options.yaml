@@ -1,0 +1,16 @@
+# Static analysis settings. Run `flutter analyze` to check the project.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+
+linter:
+  rules:
+    # Lesson files are named NN_topic.dart (e.g. 03_scaffold.dart) so they
+    # sort in lesson order. The file_names lint rejects a leading digit, so
+    # it is turned off; keep every other file name lower_case_with_underscores.
+    file_names: false
