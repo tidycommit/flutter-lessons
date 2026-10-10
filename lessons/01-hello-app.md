@@ -1,6 +1,6 @@
 # Lesson 01: Hello app
 
-**Date:** Date not recorded
+**Date:** Sep 20, 2026
 
 Every Flutter app starts in `main()`, which calls `runApp()` with a root widget. That root is usually a `MaterialApp`, which sets up theming, navigation and text direction for everything below it. Whatever you pass as `home` becomes the first screen.
 

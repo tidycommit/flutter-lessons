@@ -22,6 +22,7 @@ import '17_text_style.dart';
 import '18_switch_list_tile.dart';
 import '19_snack_bar.dart';
 import '20_circle_avatar.dart';
+import '21_navigator_push_pop.dart';
 import 'lesson.dart';
 
 /// Every lesson, in the order shown on the home screen.
@@ -29,14 +30,14 @@ final List<Lesson> lessons = [
   Lesson(
     id: 1,
     title: 'Hello app',
-    date: null,
+    date: DateTime(2026, 9, 20),
     markdownPath: 'lessons/01-hello-app.md',
     builder: (_) => const HelloAppLesson(),
   ),
   Lesson(
     id: 2,
     title: 'StatefulWidget counter',
-    date: null,
+    date: DateTime(2026, 9, 20),
     markdownPath: 'lessons/02-stateful-counter.md',
     builder: (_) => const StatefulCounterLesson(),
   ),
@@ -165,5 +166,12 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 10, 9),
     markdownPath: 'lessons/20-circle-avatar.md',
     builder: (_) => const CircleAvatarLesson(),
+  ),
+  Lesson(
+    id: 21,
+    title: 'Moving between screens with Navigator.push and Navigator.pop',
+    date: DateTime(2026, 10, 10),
+    markdownPath: 'lessons/21-navigator-push-pop.md',
+    builder: (_) => const Lesson21Home(),
   ),
 ];
