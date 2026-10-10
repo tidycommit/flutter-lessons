@@ -35,7 +35,7 @@ small built-in renderer (`lib/widgets/simple_markdown.dart`).
 lessons/                    Lesson text, one markdown file per lesson
   01-hello-app.md
   ...
-  20-circle-avatar.md
+  21-navigator-push-pop.md
 lib/
   main.dart                 MaterialApp and app theme
   lessons/
@@ -43,7 +43,7 @@ lib/
     lessons.dart            Central registry: the ordered list of all lessons
     01_hello_app.dart       Runnable example widget for each lesson
     ...
-    20_circle_avatar.dart
+    21_navigator_push_pop.dart
   screens/
     home_screen.dart        ListView of lessons, Navigator.push to each one
     lesson_screen.dart      AppBar with title, back button and lesson notes
@@ -58,23 +58,23 @@ android/ ios/ web/          Platform runners from `flutter create`
 ## Adding a lesson
 
 A lesson is one markdown file, one Dart file and one registry entry. For
-example, a lesson 21 on Navigator push and pop:
+example, a lesson 22 on passing data between screens:
 
-1. **Text:** add `lessons/21-navigator-push-pop.md`. Start it with
-   `# Lesson 21: Navigator push and pop` (the test checks for this heading),
+1. **Text:** add `lessons/22-passing-data.md`. Start it with
+   `# Lesson 22: Passing data between screens` (the test checks for this heading),
    then a `**Date:**` line, the explanation and the code in a fenced block.
    Everything in `lessons/` is bundled as an asset automatically.
-2. **Example:** add `lib/lessons/21_navigator_push_pop.dart` with a widget such
-   as `class NavigatorPushPopLesson extends StatelessWidget`.
+2. **Example:** add `lib/lessons/22_passing_data.dart` with a widget such
+   as `class PassingDataLesson extends StatelessWidget`.
 3. **Registry:** in `lib/lessons/lessons.dart`, import the file and add:
 
    ```dart
    Lesson(
-     id: 21,
-     title: 'Navigator push and pop',
-     date: DateTime(2026, 10, 10),
-     markdownPath: 'lessons/21-navigator-push-pop.md',
-     builder: (_) => const NavigatorPushPopLesson(),
+     id: 22,
+     title: 'Passing data between screens',
+     date: DateTime(2026, 10, 11),
+     markdownPath: 'lessons/22-passing-data.md',
+     builder: (_) => const PassingDataLesson(),
    ),
    ```
 
