@@ -1,6 +1,6 @@
 # Lesson 02: StatefulWidget counter
 
-**Date:** Date not recorded
+**Date:** Sep 20, 2026
 
 A `StatefulWidget` is split into two classes. The widget itself is immutable and only creates a `State` object. The `State` object lives across rebuilds and holds data that can change, such as a counter.
 

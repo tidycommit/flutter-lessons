@@ -29,14 +29,14 @@ final List<Lesson> lessons = [
   Lesson(
     id: 1,
     title: 'Hello app',
-    date: null,
+    date: DateTime(2026, 9, 20),
     markdownPath: 'lessons/01-hello-app.md',
     builder: (_) => const HelloAppLesson(),
   ),
   Lesson(
     id: 2,
     title: 'StatefulWidget counter',
-    date: null,
+    date: DateTime(2026, 9, 20),
     markdownPath: 'lessons/02-stateful-counter.md',
     builder: (_) => const StatefulCounterLesson(),
   ),

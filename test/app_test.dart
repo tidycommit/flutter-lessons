@@ -15,6 +15,7 @@ void main() {
     expect(lessons, hasLength(20));
     for (var i = 0; i < lessons.length; i++) {
       expect(lessons[i].id, i + 1);
+      expect(lessons[i].date, isNotNull, reason: lessons[i].title);
       expect(
         lessons[i].markdownPath,
         startsWith('lessons/${lessons[i].number}-'),
