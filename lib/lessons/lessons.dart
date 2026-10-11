@@ -23,6 +23,7 @@ import '18_switch_list_tile.dart';
 import '19_snack_bar.dart';
 import '20_circle_avatar.dart';
 import '21_navigator_push_pop.dart';
+import '22_passing_data.dart';
 import 'lesson.dart';
 
 /// Every lesson, in the order shown on the home screen.
@@ -173,5 +174,12 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 10, 10),
     markdownPath: 'lessons/21-navigator-push-pop.md',
     builder: (_) => const Lesson21Home(),
+  ),
+  Lesson(
+    id: 22,
+    title: 'Passing data to a new screen through its constructor',
+    date: DateTime(2026, 10, 11),
+    markdownPath: 'lessons/22-passing-data.md',
+    builder: (_) => const Lesson22FruitList(),
   ),
 ];

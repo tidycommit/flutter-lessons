@@ -12,7 +12,7 @@ void main() {
   }
 
   test('registry has unique ids, in order, with lesson asset paths', () {
-    expect(lessons, hasLength(21));
+    expect(lessons, hasLength(22));
     for (var i = 0; i < lessons.length; i++) {
       expect(lessons[i].id, i + 1);
       expect(lessons[i].date, isNotNull, reason: lessons[i].title);
@@ -191,6 +191,49 @@ void main() {
         expect(find.text('Details'), findsNothing);
         expect(find.text('Open details'), findsOneWidget);
         expect(find.widgetWithText(AppBar, title), findsOneWidget);
+      });
+    });
+
+    group('22 Passing data', () {
+      const title = 'Passing data to a new screen through its constructor';
+
+      testWidgets('is listed on the home screen', (tester) async {
+        await tester.pumpWidget(const FlutterLessonsApp());
+        await scrollTo(tester, find.text(title));
+        expect(find.text(title), findsOneWidget);
+        expect(find.text('Oct 11, 2026'), findsOneWidget);
+      });
+
+      testWidgets('lists all three fruits', (tester) async {
+        await open(tester, title);
+        expect(find.widgetWithText(AppBar, 'Fruits'), findsOneWidget);
+        for (final fruit in ['Apple', 'Banana', 'Cherry']) {
+          expect(find.widgetWithText(ListTile, fruit), findsOneWidget);
+        }
+        // Only the lesson screen's back arrow, not a second nested one.
+        expect(find.byType(BackButton), findsOneWidget);
+      });
+
+      testWidgets('Banana opens its detail; back returns; Cherry opens', (
+        tester,
+      ) async {
+        await open(tester, title);
+
+        await tester.tap(find.widgetWithText(ListTile, 'Banana'));
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Banana'), findsOneWidget);
+        expect(find.text('You picked Banana!'), findsOneWidget);
+
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.text('You picked Banana!'), findsNothing);
+        expect(find.widgetWithText(AppBar, 'Fruits'), findsOneWidget);
+        expect(find.widgetWithText(AppBar, title), findsOneWidget);
+
+        await tester.tap(find.widgetWithText(ListTile, 'Cherry'));
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Cherry'), findsOneWidget);
+        expect(find.text('You picked Cherry!'), findsOneWidget);
       });
     });
   });
