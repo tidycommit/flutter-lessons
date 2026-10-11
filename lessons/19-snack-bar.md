@@ -4,7 +4,7 @@
 
 A `SnackBar` is a short message that slides in at the bottom of the screen and disappears after a few seconds. You show one through the `ScaffoldMessenger`, which `MaterialApp` creates for you: `ScaffoldMessenger.of(context).showSnackBar(...)`.
 
-Because the messenger sits above every route, the snack bar is not lost if the user navigates while it is showing. A `SnackBar` can also carry a `SnackBarAction`, such as Undo, and its `duration` can be changed.
+Because the messenger sits above every route, the snack bar is not lost if the user navigates while it is showing. The snippet wraps the button in a `Builder`, a habit from the older `Scaffold.of(context)` API, which needed a `context` below the Scaffold; `ScaffoldMessenger.of(context)` works without it. A `SnackBar` can also carry a `SnackBarAction`, such as Undo, and its `duration` can be changed.
 
 ## Key points
 
@@ -12,9 +12,34 @@ Because the messenger sits above every route, the snack bar is not lost if the u
 - Keep the message short and confirm what just happened.
 - Call `hideCurrentSnackBar()` to dismiss one early.
 
-## In the app
+## Code
 
-This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+Original snippet as taught:
+
+```dart
+Scaffold(
+  appBar: AppBar(title: Text("SnackBar")),
+  body: Center(
+    child: Builder(
+      builder: (context) => ElevatedButton(
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Saved!")),
+          );
+        },
+        child: Text("Save"),
+      ),
+    ),
+  ),
+)
+```
+
+## How it is adapted in this app
+
+- There is no `main()` or `runApp()`. The snippet's `Scaffold` is returned from the `build` method of `SnackBarLesson`, a `StatelessWidget`.
+- That `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The AppBar gets `actions: const [LessonInfoButton(lessonId: 19)]`, the button that opens these notes.
+- `const` is added where the analyzer asks for it, and the code is run through `dart format`. Nothing else changes.
 
 ## Example
 
@@ -26,14 +51,21 @@ class SnackBarLesson extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ElevatedButton.icon(
-        onPressed: () {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Saved!')));
-        },
-        icon: const Icon(Icons.save),
-        label: const Text('Save'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("SnackBar"),
+        actions: const [LessonInfoButton(lessonId: 19)],
+      ),
+      body: Center(
+        child: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(const SnackBar(content: Text("Saved!")));
+            },
+            child: const Text("Save"),
+          ),
+        ),
       ),
     );
   }

@@ -12,9 +12,66 @@ In the example the outer `Expanded` lets the row take all the height below the 8
 - Leftover space is divided by `flex`: here 1 + 2 + 1 = 4 parts.
 - `Flexible` is similar but lets the child be smaller than its share.
 
-## In the app
+## Code
 
-This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+AppBar title supplied by the teacher; the original full code wasn't available.
+
+```dart
+class ExpandedLesson extends StatelessWidget {
+  const ExpandedLesson({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Expanded')),
+      body: const Column(
+        children: [
+          _Panel(color: Colors.blueGrey, label: 'Fixed height: 80', height: 80),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: _Panel(color: Colors.red, label: 'flex: 1'),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: _Panel(color: Colors.green, label: 'flex: 2'),
+                ),
+                Expanded(
+                  child: _Panel(color: Colors.blue, label: 'flex: 1'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Panel extends StatelessWidget {
+  const _Panel({required this.color, required this.label, this.height});
+
+  final Color color;
+  final String label;
+  final double? height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      color: color,
+      alignment: Alignment.center,
+      child: Text(label, style: const TextStyle(color: Colors.white)),
+    );
+  }
+}
+```
+
+## How it is adapted in this app
+
+- The example's `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The only addition is `actions: const [LessonInfoButton(lessonId: 6)]` on the AppBar, the button that opens these notes.
 
 ## Example
 
@@ -26,26 +83,32 @@ class ExpandedLesson extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        _Panel(color: Colors.blueGrey, label: 'Fixed height: 80', height: 80),
-        Expanded(
-          child: Row(
-            children: [
-              Expanded(
-                child: _Panel(color: Colors.red, label: 'flex: 1'),
-              ),
-              Expanded(
-                flex: 2,
-                child: _Panel(color: Colors.green, label: 'flex: 2'),
-              ),
-              Expanded(
-                child: _Panel(color: Colors.blue, label: 'flex: 1'),
-              ),
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Expanded'),
+        actions: const [LessonInfoButton(lessonId: 6)],
+      ),
+      body: const Column(
+        children: [
+          _Panel(color: Colors.blueGrey, label: 'Fixed height: 80', height: 80),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: _Panel(color: Colors.red, label: 'flex: 1'),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: _Panel(color: Colors.green, label: 'flex: 2'),
+                ),
+                Expanded(
+                  child: _Panel(color: Colors.blue, label: 'flex: 1'),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

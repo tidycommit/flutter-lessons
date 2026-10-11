@@ -12,13 +12,16 @@ import 'package:flutter/material.dart';
 void main() {
   runApp(
     const MaterialApp(
-      home: Scaffold(body: Center(child: Text('Hello, world!'))),
+      home: Scaffold(
+        appBar: AppBar(title: Text('Hello')),
+        body: Center(child: Text('Hello, world!')),
+      ),
     ),
   );
 }
 ```
 
-In this repo the `MaterialApp` lives in `lib/main.dart`, so each lesson only provides the widget that goes on screen. Here that is a `StatelessWidget` whose `build` method returns a centered `Text`.
+In this repo the `MaterialApp` lives in `lib/main.dart`, so each lesson only provides the widget that goes on screen. Here that is a `StatelessWidget` whose `build` method returns a `Scaffold` with an AppBar and a centered `Text`.
 
 ## Key points
 
@@ -26,9 +29,30 @@ In this repo the `MaterialApp` lives in `lib/main.dart`, so each lesson only pro
 - `MaterialApp` provides the theme, navigator and other app-wide services.
 - A `StatelessWidget` describes UI that depends only on its constructor arguments.
 
-## In the app
+## Code
 
-This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+AppBar title supplied by the teacher; the original full code wasn't available.
+
+```dart
+class HelloAppLesson extends StatelessWidget {
+  const HelloAppLesson({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Hello')),
+      body: const Center(
+        child: Text('Hello, world!', style: TextStyle(fontSize: 24)),
+      ),
+    );
+  }
+}
+```
+
+## How it is adapted in this app
+
+- The example's `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The only addition is `actions: const [LessonInfoButton(lessonId: 1)]` on the AppBar, the button that opens these notes.
 
 ## Example
 
@@ -40,8 +64,14 @@ class HelloAppLesson extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Hello, world!', style: TextStyle(fontSize: 24)),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Hello'),
+        actions: const [LessonInfoButton(lessonId: 1)],
+      ),
+      body: const Center(
+        child: Text('Hello, world!', style: TextStyle(fontSize: 24)),
+      ),
     );
   }
 }

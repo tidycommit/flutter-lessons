@@ -4,50 +4,49 @@ import 'package:flutter_lessons/lessons/lessons.dart';
 import 'package:flutter_lessons/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// The AppBar title each lesson's own snippet uses, by lesson id.
-///
-/// `null` means the snippet has no AppBar, so the app shows the example under
-/// a minimal AppBar with no title (only the back arrow and the info action).
-const expectedAppBarTitles = <int, String?>{
-  1: null,
-  2: null,
+/// The AppBar title from each lesson's snippet, by lesson id. Titles for
+/// 01-10 were supplied by the teacher; 11-20 come from the original
+/// snippets; 21-22 from the lesson code.
+const expectedAppBarTitles = <int, String>{
+  1: 'Hello',
+  2: 'Counter',
   3: 'My page',
-  4: null,
-  5: null,
-  6: null,
-  7: null,
-  8: null,
-  9: null,
-  10: null,
-  11: null,
-  12: null,
-  13: null,
-  14: null,
-  15: null,
-  16: null,
-  17: null,
-  18: null,
-  19: null,
-  20: null,
+  4: 'Column & Row',
+  5: 'Padding',
+  6: 'Expanded',
+  7: 'Hello',
+  8: 'Center',
+  9: 'Container',
+  10: 'ElevatedButton',
+  11: 'FAB Tip',
+  12: 'TextField',
+  13: 'My List',
+  14: 'Icons',
+  15: 'Cards',
+  16: 'Stack',
+  17: 'Text Styles',
+  18: 'Settings',
+  19: 'SnackBar',
+  20: 'Avatar',
   21: 'Home',
   22: 'Fruits',
 };
 
-/// Checks the open lesson screen shows exactly one AppBar: the snippet's own
-/// (or the untitled one), with a back arrow and the info action, and no
-/// generic AppBar carrying the lesson's list title.
+/// Checks the open lesson screen shows exactly one AppBar, the snippet's own:
+/// the expected title, default styling, a back arrow and the info action.
 void expectLessonAppBar(WidgetTester tester, Lesson lesson) {
-  final expected = expectedAppBarTitles[lesson.id];
   final appBars = tester.widgetList<AppBar>(find.byType(AppBar)).toList();
   expect(appBars, hasLength(1), reason: lesson.title);
-  final title = appBars.single.title;
-  if (expected == null) {
-    expect(title, isNull, reason: lesson.title);
-  } else {
-    expect(title, isA<Text>(), reason: lesson.title);
-    expect((title! as Text).data, expected, reason: lesson.title);
-  }
-  expect(find.widgetWithText(AppBar, lesson.title), findsNothing);
+  final appBar = appBars.single;
+  expect(appBar.title, isA<Text>(), reason: lesson.title);
+  expect(
+    (appBar.title! as Text).data,
+    expectedAppBarTitles[lesson.id],
+    reason: lesson.title,
+  );
+  // All snippets use default AppBar styling.
+  expect(appBar.backgroundColor, isNull, reason: lesson.title);
+  expect(appBar.foregroundColor, isNull, reason: lesson.title);
   expect(
     find.descendant(
       of: find.byType(AppBar),
@@ -88,19 +87,11 @@ void main() {
       expectedAppBarTitles.keys.toList(),
       lessons.map((l) => l.id).toList(),
     );
-    for (final lesson in lessons) {
-      expect(
-        lesson.hasOwnAppBar,
-        expectedAppBarTitles[lesson.id] != null,
-        reason: 'hasOwnAppBar for ${lesson.title}',
-      );
-    }
   });
 
   group("each lesson opens with its snippet's AppBar", () {
     for (final lesson in lessons) {
-      final expected = expectedAppBarTitles[lesson.id];
-      testWidgets('${lesson.number}: ${expected ?? '(no title)'}', (
+      testWidgets('${lesson.number}: ${expectedAppBarTitles[lesson.id]}', (
         tester,
       ) async {
         await tester.pumpWidget(const FlutterLessonsApp());
@@ -134,18 +125,6 @@ void main() {
         expect(tile, findsOneWidget);
       });
     }
-  });
-
-  testWidgets('03 keeps the snippet AppBar styling', (tester) async {
-    await tester.pumpWidget(const FlutterLessonsApp());
-    await tester.tap(find.widgetWithText(ListTile, 'Scaffold'));
-    await tester.pumpAndSettle();
-    final appBar = tester.widget<AppBar>(find.byType(AppBar));
-    final context = tester.element(find.byType(AppBar));
-    expect(
-      appBar.backgroundColor,
-      Theme.of(context).colorScheme.primaryContainer,
-    );
   });
 
   testWidgets('home screen lists every lesson title', (tester) async {
@@ -215,19 +194,56 @@ void main() {
       expect(find.text('1'), findsOneWidget);
     });
 
-    testWidgets('11 FAB adds items', (tester) async {
-      await open(tester, 'FloatingActionButton');
-      await tester.tap(find.byType(FloatingActionButton));
-      await tester.pump();
-      expect(find.text('Items added: 1'), findsOneWidget);
+    testWidgets('07 body is wrapped in SafeArea', (tester) async {
+      await open(tester, 'SafeArea');
+      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+      expect(scaffold.body, isA<SafeArea>());
     });
 
-    testWidgets('12 TextField greets by name', (tester) async {
+    testWidgets('08 centers Hello, Flutter!', (tester) async {
+      await open(tester, 'Center');
+      expect(
+        find.descendant(
+          of: find.byType(Center),
+          matching: find.text('Hello, Flutter!'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('09 Container says Hello!', (tester) async {
+      await open(tester, 'Container');
+      expect(find.text('Hello!'), findsOneWidget);
+    });
+
+    testWidgets('10 Tap me counts taps', (tester) async {
+      await open(tester, 'ElevatedButton');
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Tap me'));
+      await tester.pump();
+      expect(find.text('Pressed 1 times'), findsOneWidget);
+    });
+
+    testWidgets('11 FAB is shown and its empty onPressed is harmless', (
+      tester,
+    ) async {
+      await open(tester, 'FloatingActionButton');
+      expect(find.text('Tap the + button'), findsOneWidget);
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('Tap the + button'), findsOneWidget);
+    });
+
+    testWidgets('12 TextField has its label and border and accepts text', (
+      tester,
+    ) async {
       await open(tester, 'TextField and InputDecoration');
-      expect(find.text('Your name'), findsOneWidget);
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.decoration?.labelText, 'Your name');
+      expect(field.decoration?.border, isA<OutlineInputBorder>());
       await tester.enterText(find.byType(TextField), 'Sam');
       await tester.pump();
-      expect(find.text('Hello, Sam!'), findsOneWidget);
+      expect(find.text('Sam'), findsOneWidget);
     });
 
     testWidgets('13 ListView shows three fruits', (tester) async {
@@ -246,12 +262,14 @@ void main() {
       expect(stack.clipBehavior, Clip.none);
     });
 
-    testWidgets('18 Dark mode switch toggles', (tester) async {
+    testWidgets('18 Dark mode starts on and toggles off', (tester) async {
       await open(tester, 'SwitchListTile');
-      expect(find.text('Off'), findsOneWidget);
+      bool value() =>
+          tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value;
+      expect(value(), isTrue);
       await tester.tap(find.text('Dark mode'));
       await tester.pumpAndSettle();
-      expect(find.text('On'), findsOneWidget);
+      expect(value(), isFalse);
     });
 
     testWidgets('19 Save shows a SnackBar', (tester) async {

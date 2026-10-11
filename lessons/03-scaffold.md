@@ -14,6 +14,8 @@ You fill only the slots you need and the Scaffold positions them for you. It als
 
 ## Code
 
+AppBar title supplied by the teacher; the original full code wasn't available.
+
 ```dart
 class ScaffoldLesson extends StatelessWidget {
   const ScaffoldLesson({super.key});
@@ -21,10 +23,7 @@ class ScaffoldLesson extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My page'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      ),
+      appBar: AppBar(title: const Text('My page')),
       body: const Center(child: Text('The body fills the space in between.')),
       bottomNavigationBar: const BottomAppBar(
         child: Center(child: Text('Bottom app bar')),
@@ -36,7 +35,8 @@ class ScaffoldLesson extends StatelessWidget {
 
 ## How it is adapted in this app
 
-The lesson screen is this snippet's own `Scaffold`, so its AppBar is exactly as written: the title My page on a `primaryContainer` background. Because that Scaffold is the pushed route, the AppBar adds the back arrow to the lesson list automatically. The only addition is `actions: const [LessonInfoButton(lessonId: 3)]`, the button that opens these notes.
+- The example's `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The only addition is `actions: const [LessonInfoButton(lessonId: 3)]` on the AppBar, the button that opens these notes.
 
 ## Example
 
@@ -51,7 +51,6 @@ class ScaffoldLesson extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My page'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         actions: const [LessonInfoButton(lessonId: 3)],
       ),
       body: const Center(child: Text('The body fills the space in between.')),

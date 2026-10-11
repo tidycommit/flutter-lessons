@@ -11,7 +11,6 @@ class ScaffoldLesson extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My page'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         actions: const [LessonInfoButton(lessonId: 3)],
       ),
       body: const Center(child: Text('The body fills the space in between.')),

@@ -1,25 +1,21 @@
 import 'package:flutter/material.dart';
 
-/// Lesson 11: A Scaffold with a FloatingActionButton that increments a counter.
-class FloatingActionButtonLesson extends StatefulWidget {
+import '../widgets/lesson_info_button.dart';
+
+/// Lesson 11: A Scaffold with a FloatingActionButton.
+class FloatingActionButtonLesson extends StatelessWidget {
   const FloatingActionButtonLesson({super.key});
-
-  @override
-  State<FloatingActionButtonLesson> createState() =>
-      _FloatingActionButtonLessonState();
-}
-
-class _FloatingActionButtonLessonState
-    extends State<FloatingActionButtonLesson> {
-  int _items = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: Text('Items added: $_items')),
+      appBar: AppBar(
+        title: const Text('FAB Tip'),
+        actions: const [LessonInfoButton(lessonId: 11)],
+      ),
+      body: const Center(child: Text('Tap the + button')),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => setState(() => _items++),
-        tooltip: 'Add item',
+        onPressed: () {},
         child: const Icon(Icons.add),
       ),
     );

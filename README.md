@@ -78,12 +78,11 @@ screen:
      date: DateTime(2026, 10, 12),
      markdownPath: 'lessons/23-returning-data.md',
      builder: (_) => const ReturningDataLesson(),
-     hasOwnAppBar: true, // only if the snippet has its own AppBar
    ),
    ```
-4. **Test table:** add the lesson's expected AppBar title to
-   `expectedAppBarTitles` in `test/app_test.dart` (`null` if the snippet has
-   no AppBar). The test fails if a lesson is missing from the table.
+4. **Test table:** add the lesson's AppBar title to `expectedAppBarTitles`
+   in `test/app_test.dart`. The test fails if a lesson is missing from the
+   table.
 
 The home screen, the notes sheet and the walkthrough test pick the rest up.
 Run `flutter analyze && flutter test` to confirm.
@@ -91,19 +90,20 @@ Run `flutter analyze && flutter test` to confirm.
 ### The AppBar rule
 
 Each lesson's screen uses its snippet's own AppBar, with the info action
-added. There is no shared, titled AppBar around the examples.
+added. There is no shared AppBar around the examples.
 
-- **The snippet has a Scaffold with an AppBar:** the example widget returns
-  that Scaffold exactly as in the snippet, with the same title text and any
-  styling such as `backgroundColor` or `foregroundColor`. Its only addition
-  is `LessonInfoButton(lessonId: NN)` in the AppBar's `actions`. Set
-  `hasOwnAppBar: true` in the registry. That Scaffold is the pushed route, so
-  the AppBar shows the back arrow to the lesson list automatically. Don't set
-  `automaticallyImplyLeading: false`.
-- **The snippet has no AppBar** (just a widget, or a Scaffold without
-  `appBar`): keep the example exactly as written, don't invent a title, and
-  leave `hasOwnAppBar` false. The app shows it under a minimal AppBar with no
-  title, holding only the back arrow and the info action.
+- The example widget returns the snippet's `Scaffold` with the AppBar exactly
+  as written: the same title text and any styling such as `backgroundColor`
+  or `foregroundColor`. The only addition is
+  `actions: const [LessonInfoButton(lessonId: NN)]`.
+- That Scaffold is the pushed route, so the AppBar shows the back arrow to
+  the lesson list automatically. Don't set `automaticallyImplyLeading: false`.
+- In the markdown, keep the original snippet verbatim under `## Code`, add a
+  `## How it is adapted in this app` note (no `main()`/`runApp()`, class
+  name, info action, `const` for the analyzer), and end with the in-app code
+  under `## Example`.
+- If a snippet has no AppBar, don't invent a title. Ask the teacher for one,
+  because every lesson needs an entry in the test table.
 - Screens the lesson pushes itself, like a details screen, keep the AppBar
   from the snippet. They don't need the info action.
 

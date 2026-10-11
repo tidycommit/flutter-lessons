@@ -12,9 +12,40 @@ You can turn individual sides off with `top`, `bottom`, `left` and `right`. On t
 - `SafeArea` only adds padding; it does not change colours.
 - The insets come from `MediaQuery.paddingOf(context)`.
 
-## In the app
+## Code
 
-This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+AppBar title supplied by the teacher; the original full code wasn't available.
+
+```dart
+class SafeAreaLesson extends StatelessWidget {
+  const SafeAreaLesson({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Hello')),
+      body: SafeArea(
+        child: Container(
+          color: Colors.orange,
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(24),
+          child: const Text(
+            'This box stays clear of notches, status bars and the home '
+            'indicator.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+## How it is adapted in this app
+
+- The example's `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The only addition is `actions: const [LessonInfoButton(lessonId: 7)]` on the AppBar, the button that opens these notes.
 
 ## Example
 
@@ -26,10 +57,12 @@ class SafeAreaLesson extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      // The light background shows any inset area SafeArea keeps clear.
-      color: Colors.orange.shade100,
-      child: SafeArea(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Hello'),
+        actions: const [LessonInfoButton(lessonId: 7)],
+      ),
+      body: SafeArea(
         child: Container(
           color: Colors.orange,
           alignment: Alignment.center,

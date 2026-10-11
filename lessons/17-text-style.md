@@ -12,9 +12,32 @@ Any property you leave out is inherited from the surrounding `DefaultTextStyle`,
 - `FontWeight.bold` is the same as `FontWeight.w700`.
 - Prefer theme text styles with `copyWith` for consistency across screens.
 
-## In the app
+## Code
 
-This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+Original snippet as taught:
+
+```dart
+Scaffold(
+  appBar: AppBar(title: const Text('Text Styles')),
+  body: const Center(
+    child: Text(
+      'Hello, Flutter!',
+      style: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        color: Colors.deepPurple,
+      ),
+    ),
+  ),
+)
+```
+
+## How it is adapted in this app
+
+- There is no `main()` or `runApp()`. The snippet's `Scaffold` is returned from the `build` method of `TextStyleLesson`, a `StatelessWidget`.
+- That `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The AppBar gets `actions: const [LessonInfoButton(lessonId: 17)]`, the button that opens these notes.
+- `const` is added where the analyzer asks for it, and the code is run through `dart format`. Nothing else changes.
 
 ## Example
 
@@ -26,13 +49,19 @@ class TextStyleLesson extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Hello, Flutter!',
-        style: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
-          color: Colors.deepPurple,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Text Styles'),
+        actions: const [LessonInfoButton(lessonId: 17)],
+      ),
+      body: const Center(
+        child: Text(
+          'Hello, Flutter!',
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Colors.deepPurple,
+          ),
         ),
       ),
     );

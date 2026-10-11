@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/lesson_info_button.dart';
+
 /// Lesson 04: Rows of boxes using different MainAxisAlignment values inside a Column.
 class ColumnRowLesson extends StatelessWidget {
   const ColumnRowLesson({super.key});
@@ -14,24 +16,30 @@ class ColumnRowLesson extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (final alignment in _alignments) ...[
-            Text('MainAxisAlignment.${alignment.name}'),
-            Row(
-              mainAxisAlignment: alignment,
-              children: const [
-                _Box(color: Colors.red),
-                _Box(color: Colors.green),
-                _Box(color: Colors.blue),
-              ],
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Column & Row'),
+        actions: const [LessonInfoButton(lessonId: 4)],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final alignment in _alignments) ...[
+              Text('MainAxisAlignment.${alignment.name}'),
+              Row(
+                mainAxisAlignment: alignment,
+                children: const [
+                  _Box(color: Colors.red),
+                  _Box(color: Colors.green),
+                  _Box(color: Colors.blue),
+                ],
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

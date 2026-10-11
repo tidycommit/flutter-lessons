@@ -12,9 +12,48 @@ A `BoxDecoration` can draw a background colour, gradient, border, rounded corner
 - Without a size or child constraints, a Container tries to be as big as possible.
 - For a single job, a dedicated widget like `Padding` or `SizedBox` is often clearer.
 
-## In the app
+## Code
 
-This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+AppBar title supplied by the teacher; the original full code wasn't available.
+
+```dart
+class ContainerLesson extends StatelessWidget {
+  const ContainerLesson({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Container')),
+      body: Center(
+        child: Container(
+          width: 240,
+          height: 140,
+          padding: const EdgeInsets.all(16),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.lightBlue.shade100,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.lightBlue, width: 2),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: const Text('Hello!'),
+        ),
+      ),
+    );
+  }
+}
+```
+
+## How it is adapted in this app
+
+- The example's `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The only addition is `actions: const [LessonInfoButton(lessonId: 9)]` on the AppBar, the button that opens these notes.
 
 ## Example
 
@@ -26,27 +65,30 @@ class ContainerLesson extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: 240,
-        height: 140,
-        padding: const EdgeInsets.all(16),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Colors.lightBlue.shade100,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.lightBlue, width: 2),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 8,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: const Text(
-          'width, height, padding and a BoxDecoration',
-          textAlign: TextAlign.center,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Container'),
+        actions: const [LessonInfoButton(lessonId: 9)],
+      ),
+      body: Center(
+        child: Container(
+          width: 240,
+          height: 140,
+          padding: const EdgeInsets.all(16),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.lightBlue.shade100,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.lightBlue, width: 2),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: const Text('Hello!'),
         ),
       ),
     );

@@ -48,7 +48,6 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 9, 21),
     markdownPath: 'lessons/03-scaffold.md',
     builder: (_) => const ScaffoldLesson(),
-    hasOwnAppBar: true,
   ),
   Lesson(
     id: 4,
@@ -175,7 +174,6 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 10, 10),
     markdownPath: 'lessons/21-navigator-push-pop.md',
     builder: (_) => const Lesson21Home(),
-    hasOwnAppBar: true,
   ),
   Lesson(
     id: 22,
@@ -183,6 +181,5 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 10, 11),
     markdownPath: 'lessons/22-passing-data.md',
     builder: (_) => const Lesson22FruitList(),
-    hasOwnAppBar: true,
   ),
 ];

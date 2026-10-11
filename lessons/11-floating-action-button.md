@@ -4,42 +4,54 @@
 
 A `FloatingActionButton` (FAB) is a round button that floats above the content for the main action on a screen, such as adding an item. You give it to a `Scaffold` through the `floatingActionButton` slot, and the Scaffold places it in the bottom-right corner by default.
 
-Set `tooltip` so the button has a label for screen readers and long presses. `FloatingActionButton.extended` shows a label next to the icon, and `floatingActionButtonLocation` on the Scaffold moves it.
+In this lesson `onPressed` is an empty function, so tapping the button shows a ripple but changes nothing; a real app would put the screen's main action there. In real apps, also set `tooltip` so the button has a label for screen readers and long presses. `FloatingActionButton.extended` shows a label next to the icon, and `floatingActionButtonLocation` on the Scaffold moves it.
 
 ## Key points
 
 - Use at most one FAB per screen, for the primary action.
 - The FAB belongs in the Scaffold slot, not in the body.
-- Always set a `tooltip`.
+- Set a `tooltip` in real apps (the lesson snippet leaves it out).
 
-## In the app
+## Code
 
-This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+Original snippet as taught:
+
+```dart
+Scaffold(
+  appBar: AppBar(title: Text('FAB Tip')),
+  body: Center(child: Text('Tap the + button')),
+  floatingActionButton: FloatingActionButton(
+    onPressed: () {},
+    child: Icon(Icons.add),
+  ),
+)
+```
+
+## How it is adapted in this app
+
+- There is no `main()` or `runApp()`. The snippet's `Scaffold` is returned from the `build` method of `FloatingActionButtonLesson`, a `StatelessWidget`.
+- That `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The AppBar gets `actions: const [LessonInfoButton(lessonId: 11)]`, the button that opens these notes.
+- `const` is added where the analyzer asks for it, and the code is run through `dart format`. Nothing else changes.
 
 ## Example
 
 This is the runnable example in `lib/lessons/11_floating_action_button.dart`:
 
 ```dart
-class FloatingActionButtonLesson extends StatefulWidget {
+class FloatingActionButtonLesson extends StatelessWidget {
   const FloatingActionButtonLesson({super.key});
-
-  @override
-  State<FloatingActionButtonLesson> createState() =>
-      _FloatingActionButtonLessonState();
-}
-
-class _FloatingActionButtonLessonState
-    extends State<FloatingActionButtonLesson> {
-  int _items = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: Text('Items added: $_items')),
+      appBar: AppBar(
+        title: const Text('FAB Tip'),
+        actions: const [LessonInfoButton(lessonId: 11)],
+      ),
+      body: const Center(child: Text('Tap the + button')),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => setState(() => _items++),
-        tooltip: 'Add item',
+        onPressed: () {},
         child: const Icon(Icons.add),
       ),
     );
