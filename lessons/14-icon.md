@@ -12,9 +12,25 @@
 - Without `size` or `color`, values come from the surrounding `IconTheme`.
 - Use `IconButton` when the icon should be tappable.
 
-## In the app
+## Code
 
-This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+Original snippet as taught:
+
+```dart
+Scaffold(
+  appBar: AppBar(title: Text('Icons')),
+  body: Center(
+    child: Icon(Icons.favorite, size: 64, color: Colors.red),
+  ),
+)
+```
+
+## How it is adapted in this app
+
+- There is no `main()` or `runApp()`. The snippet's `Scaffold` is returned from the `build` method of `IconLesson`, a `StatelessWidget`.
+- That `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The AppBar gets `actions: const [LessonInfoButton(lessonId: 14)]`, the button that opens these notes.
+- `const` is added where the analyzer asks for it, and the code is run through `dart format`. Nothing else changes.
 
 ## Example
 
@@ -26,12 +42,13 @@ class IconLesson extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Icon(
-        Icons.favorite,
-        size: 64,
-        color: Colors.red,
-        semanticLabel: 'Favorite',
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Icons'),
+        actions: const [LessonInfoButton(lessonId: 14)],
+      ),
+      body: const Center(
+        child: Icon(Icons.favorite, size: 64, color: Colors.red),
       ),
     );
   }

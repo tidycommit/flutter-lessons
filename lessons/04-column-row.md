@@ -12,9 +12,71 @@
 - `spaceBetween` puts no gap at the ends; `spaceEvenly` makes every gap equal.
 - Alignment only matters when there is free space left over.
 
-## In the app
+## Code
 
-This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+AppBar title supplied by the teacher; the original full code wasn't available.
+
+```dart
+class ColumnRowLesson extends StatelessWidget {
+  const ColumnRowLesson({super.key});
+
+  static const _alignments = [
+    MainAxisAlignment.start,
+    MainAxisAlignment.center,
+    MainAxisAlignment.end,
+    MainAxisAlignment.spaceBetween,
+    MainAxisAlignment.spaceEvenly,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Column & Row')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final alignment in _alignments) ...[
+              Text('MainAxisAlignment.${alignment.name}'),
+              Row(
+                mainAxisAlignment: alignment,
+                children: const [
+                  _Box(color: Colors.red),
+                  _Box(color: Colors.green),
+                  _Box(color: Colors.blue),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Box extends StatelessWidget {
+  const _Box({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 40,
+      margin: const EdgeInsets.all(4),
+      color: color,
+    );
+  }
+}
+```
+
+## How it is adapted in this app
+
+- The example's `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The only addition is `actions: const [LessonInfoButton(lessonId: 4)]` on the AppBar, the button that opens these notes.
 
 ## Example
 
@@ -34,24 +96,30 @@ class ColumnRowLesson extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (final alignment in _alignments) ...[
-            Text('MainAxisAlignment.${alignment.name}'),
-            Row(
-              mainAxisAlignment: alignment,
-              children: const [
-                _Box(color: Colors.red),
-                _Box(color: Colors.green),
-                _Box(color: Colors.blue),
-              ],
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Column & Row'),
+        actions: const [LessonInfoButton(lessonId: 4)],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final alignment in _alignments) ...[
+              Text('MainAxisAlignment.${alignment.name}'),
+              Row(
+                mainAxisAlignment: alignment,
+                children: const [
+                  _Box(color: Colors.red),
+                  _Box(color: Colors.green),
+                  _Box(color: Colors.blue),
+                ],
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

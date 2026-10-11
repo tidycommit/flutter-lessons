@@ -12,9 +12,29 @@
 - Prefer `ListView.builder` for long lists.
 - The home screen of this app is itself a `ListView` of `ListTile`s.
 
-## In the app
+## Code
 
-This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+Original snippet as taught:
+
+```dart
+Scaffold(
+  appBar: AppBar(title: Text('My List')),
+  body: ListView(
+    children: [
+      ListTile(title: Text('Apples')),
+      ListTile(title: Text('Bananas')),
+      ListTile(title: Text('Cherries')),
+    ],
+  ),
+)
+```
+
+## How it is adapted in this app
+
+- There is no `main()` or `runApp()`. The snippet's `Scaffold` is returned from the `build` method of `ListViewLesson`, a `StatelessWidget`.
+- That `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The AppBar gets `actions: const [LessonInfoButton(lessonId: 13)]`, the button that opens these notes.
+- `const` is added where the analyzer asks for it, and the code is run through `dart format`. Nothing else changes.
 
 ## Example
 
@@ -26,21 +46,18 @@ class ListViewLesson extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: const [
-        ListTile(
-          leading: Icon(Icons.local_grocery_store),
-          title: Text('Apples'),
-        ),
-        ListTile(
-          leading: Icon(Icons.local_grocery_store),
-          title: Text('Bananas'),
-        ),
-        ListTile(
-          leading: Icon(Icons.local_grocery_store),
-          title: Text('Cherries'),
-        ),
-      ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My List'),
+        actions: const [LessonInfoButton(lessonId: 13)],
+      ),
+      body: ListView(
+        children: const [
+          ListTile(title: Text('Apples')),
+          ListTile(title: Text('Bananas')),
+          ListTile(title: Text('Cherries')),
+        ],
+      ),
     );
   }
 }

@@ -9,13 +9,12 @@ class Lesson {
     required this.date,
     required this.markdownPath,
     required this.builder,
-    this.hasOwnAppBar = false,
   });
 
   /// Lesson number, shown as a two-digit label (01, 02, ...).
   final int id;
 
-  /// Short title used in the lesson list and the example screen's AppBar.
+  /// Short title used in the lesson list.
   final String title;
 
   /// Day the lesson was written, or null if it was not recorded.
@@ -24,16 +23,9 @@ class Lesson {
   /// Asset path of the lesson's markdown file, e.g. `lessons/01-hello-app.md`.
   final String markdownPath;
 
-  /// Builds the runnable example shown on the lesson screen.
+  /// Builds the lesson's screen: a Scaffold whose AppBar matches the
+  /// snippet and has `LessonInfoButton(lessonId: id)` in its `actions`.
   final WidgetBuilder builder;
-
-  /// True when the lesson's snippet has its own Scaffold with an AppBar.
-  ///
-  /// The example is then used as the whole screen, and its AppBar must add
-  /// `LessonInfoButton(lessonId: id)` to its `actions`. When false, the app
-  /// shows the example under a minimal AppBar with no title that holds only
-  /// the back arrow and the info action.
-  final bool hasOwnAppBar;
 
   /// Two-digit lesson number, e.g. `07`.
   String get number => id.toString().padLeft(2, '0');

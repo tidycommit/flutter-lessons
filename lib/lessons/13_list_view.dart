@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/lesson_info_button.dart';
+
 /// Lesson 13: A scrolling ListView with three ListTiles.
 class ListViewLesson extends StatelessWidget {
   const ListViewLesson({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: const [
-        ListTile(
-          leading: Icon(Icons.local_grocery_store),
-          title: Text('Apples'),
-        ),
-        ListTile(
-          leading: Icon(Icons.local_grocery_store),
-          title: Text('Bananas'),
-        ),
-        ListTile(
-          leading: Icon(Icons.local_grocery_store),
-          title: Text('Cherries'),
-        ),
-      ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My List'),
+        actions: const [LessonInfoButton(lessonId: 13)],
+      ),
+      body: ListView(
+        children: const [
+          ListTile(title: Text('Apples')),
+          ListTile(title: Text('Bananas')),
+          ListTile(title: Text('Cherries')),
+        ],
+      ),
     );
   }
 }

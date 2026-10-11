@@ -4,7 +4,7 @@
 
 `TextField` is the basic text input. Its look is controlled by an `InputDecoration`: `labelText` shows a label that floats above the field once it has focus or text, and `border: OutlineInputBorder()` draws a rectangle around it. Other useful fields include `hintText`, `helperText`, `errorText` and `prefixIcon`.
 
-To read what was typed, attach a `TextEditingController` and read `controller.text`, or use the `onChanged` callback. Create the controller in a `State` and dispose of it in `dispose()`.
+This lesson's snippet only shows the decoration. To read what was typed, attach a `TextEditingController` and read `controller.text`, or use the `onChanged` callback. Create the controller in a `State` and dispose of it in `dispose()`.
 
 ## Key points
 
@@ -12,50 +12,59 @@ To read what was typed, attach a `TextEditingController` and read `controller.te
 - Dispose of every `TextEditingController` you create.
 - `onChanged` plus `setState` updates other widgets as the user types.
 
-## In the app
+## Code
 
-This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+Original snippet as taught:
+
+```dart
+Scaffold(
+  appBar: AppBar(title: Text('TextField')),
+  body: Padding(
+    padding: EdgeInsets.all(16),
+    child: Center(
+      child: TextField(
+        decoration: InputDecoration(
+          labelText: 'Your name',
+          border: OutlineInputBorder(),
+        ),
+      ),
+    ),
+  ),
+)
+```
+
+## How it is adapted in this app
+
+- There is no `main()` or `runApp()`. The snippet's `Scaffold` is returned from the `build` method of `TextFieldLesson`, a `StatelessWidget`.
+- That `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The AppBar gets `actions: const [LessonInfoButton(lessonId: 12)]`, the button that opens these notes.
+- `const` is added where the analyzer asks for it, and the code is run through `dart format`. Nothing else changes.
 
 ## Example
 
 This is the runnable example in `lib/lessons/12_text_field.dart`:
 
 ```dart
-class TextFieldLesson extends StatefulWidget {
+class TextFieldLesson extends StatelessWidget {
   const TextFieldLesson({super.key});
 
   @override
-  State<TextFieldLesson> createState() => _TextFieldLessonState();
-}
-
-class _TextFieldLessonState extends State<TextFieldLesson> {
-  final _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final name = _controller.text.trim();
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextField(
-            controller: _controller,
-            decoration: const InputDecoration(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('TextField'),
+        actions: const [LessonInfoButton(lessonId: 12)],
+      ),
+      body: const Padding(
+        padding: EdgeInsets.all(16),
+        child: Center(
+          child: TextField(
+            decoration: InputDecoration(
               labelText: 'Your name',
               border: OutlineInputBorder(),
             ),
-            onChanged: (_) => setState(() {}),
           ),
-          const SizedBox(height: 16),
-          Text(name.isEmpty ? 'Type your name above.' : 'Hello, $name!'),
-        ],
+        ),
       ),
     );
   }

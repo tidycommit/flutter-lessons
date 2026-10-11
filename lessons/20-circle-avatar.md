@@ -12,9 +12,29 @@ For a photo, set `backgroundImage` to an `ImageProvider` such as `NetworkImage` 
 - Keep initials to one or two characters so they fit.
 - Use `foregroundImage` to show a photo over fallback initials.
 
-## In the app
+## Code
 
-This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+Original snippet as taught:
+
+```dart
+Scaffold(
+  appBar: AppBar(title: Text("Avatar")),
+  body: Center(
+    child: CircleAvatar(
+      radius: 48,
+      backgroundColor: Colors.teal,
+      child: Text("AB", style: TextStyle(fontSize: 32, color: Colors.white)),
+    ),
+  ),
+)
+```
+
+## How it is adapted in this app
+
+- There is no `main()` or `runApp()`. The snippet's `Scaffold` is returned from the `build` method of `CircleAvatarLesson`, a `StatelessWidget`.
+- That `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The AppBar gets `actions: const [LessonInfoButton(lessonId: 20)]`, the button that opens these notes.
+- `const` is added where the analyzer asks for it, and the code is run through `dart format`. Nothing else changes.
 
 ## Example
 
@@ -26,13 +46,21 @@ class CircleAvatarLesson extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CircleAvatar(
-        radius: 48,
-        backgroundColor: Colors.teal,
-        // Placeholder initials; swap in a real user's initials or a
-        // backgroundImage in an app.
-        child: Text('AB', style: TextStyle(fontSize: 32, color: Colors.white)),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Avatar"),
+        actions: const [LessonInfoButton(lessonId: 20)],
+      ),
+      body: const Center(
+        child: CircleAvatar(
+          radius: 48,
+          backgroundColor: Colors.teal,
+          // Placeholder initials.
+          child: Text(
+            "AB",
+            style: TextStyle(fontSize: 32, color: Colors.white),
+          ),
+        ),
       ),
     );
   }

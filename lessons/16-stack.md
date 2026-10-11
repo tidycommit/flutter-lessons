@@ -12,9 +12,39 @@
 - `Positioned` only works as a direct child of a `Stack`.
 - Taps on the part drawn outside the Stack are not hit-tested.
 
-## In the app
+## Code
 
-This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+Original snippet as taught:
+
+```dart
+Scaffold(
+  appBar: AppBar(title: Text('Stack')),
+  body: Center(
+    child: Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(width: 200, height: 200, color: Colors.blue),
+        Positioned(
+          top: -12,
+          right: -12,
+          child: Container(
+            padding: EdgeInsets.all(6),
+            color: Colors.red,
+            child: Text('NEW', style: TextStyle(color: Colors.white)),
+          ),
+        ),
+      ],
+    ),
+  ),
+)
+```
+
+## How it is adapted in this app
+
+- There is no `main()` or `runApp()`. The snippet's `Scaffold` is returned from the `build` method of `StackLesson`, a `StatelessWidget`.
+- That `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The AppBar gets `actions: const [LessonInfoButton(lessonId: 16)]`, the button that opens these notes.
+- `const` is added where the analyzer asks for it, and the code is run through `dart format`. Nothing else changes.
 
 ## Example
 
@@ -26,40 +56,27 @@ class StackLesson extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Stack(
-        // Let the badge draw outside the Stack's bounds.
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            width: 180,
-            height: 110,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Colors.blueGrey.shade100,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Text('Product', style: TextStyle(fontSize: 18)),
-          ),
-          Positioned(
-            top: -10,
-            right: -10,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Stack'),
+        actions: const [LessonInfoButton(lessonId: 16)],
+      ),
+      body: Center(
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(width: 200, height: 200, color: Colors.blue),
+            Positioned(
+              top: -12,
+              right: -12,
+              child: Container(
+                padding: const EdgeInsets.all(6),
                 color: Colors.red,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text(
-                'NEW',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+                child: const Text('NEW', style: TextStyle(color: Colors.white)),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -12,9 +12,49 @@ Passing `null` for `onPressed` disables the button, and it is drawn greyed out. 
 - Use `setState` in the callback when the press should change what is shown.
 - `TextButton` and `OutlinedButton` are lighter alternatives for secondary actions.
 
-## In the app
+## Code
 
-This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+AppBar title supplied by the teacher; the original full code wasn't available.
+
+```dart
+class ElevatedButtonLesson extends StatefulWidget {
+  const ElevatedButtonLesson({super.key});
+
+  @override
+  State<ElevatedButtonLesson> createState() => _ElevatedButtonLessonState();
+}
+
+class _ElevatedButtonLessonState extends State<ElevatedButtonLesson> {
+  int _presses = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('ElevatedButton')),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(
+              onPressed: () => setState(() => _presses++),
+              child: const Text('Tap me'),
+            ),
+            const SizedBox(height: 12),
+            Text('Pressed $_presses times'),
+            const SizedBox(height: 24),
+            const ElevatedButton(onPressed: null, child: Text('Disabled')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+## How it is adapted in this app
+
+- The example's `Scaffold` is the pushed route, so its AppBar shows the back arrow to the lesson list automatically.
+- The only addition is `actions: const [LessonInfoButton(lessonId: 10)]` on the AppBar, the button that opens these notes.
 
 ## Example
 
@@ -33,19 +73,25 @@ class _ElevatedButtonLessonState extends State<ElevatedButtonLesson> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ElevatedButton(
-            onPressed: () => setState(() => _presses++),
-            child: const Text('Press me'),
-          ),
-          const SizedBox(height: 12),
-          Text('Pressed $_presses times'),
-          const SizedBox(height: 24),
-          const ElevatedButton(onPressed: null, child: Text('Disabled')),
-        ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('ElevatedButton'),
+        actions: const [LessonInfoButton(lessonId: 10)],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(
+              onPressed: () => setState(() => _presses++),
+              child: const Text('Tap me'),
+            ),
+            const SizedBox(height: 12),
+            Text('Pressed $_presses times'),
+            const SizedBox(height: 24),
+            const ElevatedButton(onPressed: null, child: Text('Disabled')),
+          ],
+        ),
       ),
     );
   }

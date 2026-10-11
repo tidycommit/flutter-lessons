@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Lesson 18: A Dark mode switch that re-themes the example with setState.
+import '../widgets/lesson_info_button.dart';
+
+/// Lesson 18: A Dark mode SwitchListTile on a Settings screen, toggled with setState.
 class SwitchListTileLesson extends StatefulWidget {
   const SwitchListTileLesson({super.key});
 
@@ -9,26 +11,24 @@ class SwitchListTileLesson extends StatefulWidget {
 }
 
 class _SwitchListTileLessonState extends State<SwitchListTileLesson> {
-  bool _darkMode = false;
+  bool _darkMode = true;
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: ThemeData(
-        colorSchemeSeed: Colors.indigo,
-        brightness: _darkMode ? Brightness.dark : Brightness.light,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Settings'),
+        actions: const [LessonInfoButton(lessonId: 18)],
       ),
-      child: Material(
-        child: Column(
-          children: [
-            SwitchListTile(
-              title: const Text('Dark mode'),
-              subtitle: Text(_darkMode ? 'On' : 'Off'),
-              value: _darkMode,
-              onChanged: (value) => setState(() => _darkMode = value),
-            ),
-          ],
-        ),
+      body: ListView(
+        children: [
+          SwitchListTile(
+            title: const Text('Dark mode'),
+            value: _darkMode,
+            onChanged: (v) => setState(() => _darkMode = v),
+          ),
+          const Divider(),
+        ],
       ),
     );
   }
