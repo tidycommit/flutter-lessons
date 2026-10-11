@@ -12,6 +12,10 @@ The switch does not store its own state. The parent keeps a `bool`, passes it as
 - Passing `onChanged: null` disables the tile.
 - `CheckboxListTile` and `RadioListTile` follow the same pattern.
 
+## In the app
+
+This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+
 ## Example
 
 This is the runnable example in `lib/lessons/18_switch_list_tile.dart`:

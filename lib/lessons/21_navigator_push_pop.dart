@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/lesson_info_button.dart';
+
 /// Lesson 21: Moving between screens with Navigator.push and Navigator.pop.
 class Lesson21Home extends StatelessWidget {
   const Lesson21Home({super.key});
@@ -8,16 +10,14 @@ class Lesson21Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // The lesson screen above already has a back arrow, so this
-        // nested AppBar does not add a second one.
-        automaticallyImplyLeading: false,
         title: const Text('Home'),
+        actions: const [LessonInfoButton(lessonId: 21)],
       ),
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            // Pushes onto the app's navigator, so Details covers the
-            // whole screen and its back arrow returns here.
+            // Pushes onto the app's navigator; Details' back arrow
+            // returns here.
             Navigator.push(
               context,
               MaterialPageRoute<void>(

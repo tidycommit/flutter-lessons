@@ -12,6 +12,10 @@ Passing `null` for `onPressed` disables the button, and it is drawn greyed out. 
 - Use `setState` in the callback when the press should change what is shown.
 - `TextButton` and `OutlinedButton` are lighter alternatives for secondary actions.
 
+## In the app
+
+This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+
 ## Example
 
 This is the runnable example in `lib/lessons/10_elevated_button.dart`:

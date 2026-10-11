@@ -9,6 +9,7 @@ class Lesson {
     required this.date,
     required this.markdownPath,
     required this.builder,
+    this.hasOwnAppBar = false,
   });
 
   /// Lesson number, shown as a two-digit label (01, 02, ...).
@@ -25,6 +26,14 @@ class Lesson {
 
   /// Builds the runnable example shown on the lesson screen.
   final WidgetBuilder builder;
+
+  /// True when the lesson's snippet has its own Scaffold with an AppBar.
+  ///
+  /// The example is then used as the whole screen, and its AppBar must add
+  /// `LessonInfoButton(lessonId: id)` to its `actions`. When false, the app
+  /// shows the example under a minimal AppBar with no title that holds only
+  /// the back arrow and the info action.
+  final bool hasOwnAppBar;
 
   /// Two-digit lesson number, e.g. `07`.
   String get number => id.toString().padLeft(2, '0');

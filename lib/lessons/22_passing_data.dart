@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/lesson_info_button.dart';
+
 /// Lesson 22: Passing data to a new screen through its constructor.
 class Lesson22FruitList extends StatelessWidget {
   const Lesson22FruitList({super.key});
@@ -10,10 +12,8 @@ class Lesson22FruitList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // The lesson screen above already has a back arrow, so this
-        // nested AppBar does not add a second one.
-        automaticallyImplyLeading: false,
         title: const Text('Fruits'),
+        actions: const [LessonInfoButton(lessonId: 22)],
       ),
       body: ListView(
         children: [
@@ -22,8 +22,8 @@ class Lesson22FruitList extends StatelessWidget {
               title: Text(fruit),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                // Pushes onto the app's navigator, so the detail screen
-                // covers the whole screen and its back arrow returns here.
+                // Pushes onto the app's navigator; the detail screen's
+                // back arrow returns here.
                 Navigator.push(
                   context,
                   MaterialPageRoute<void>(
