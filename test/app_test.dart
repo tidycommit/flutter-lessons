@@ -1,7 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lessons/lessons/lesson.dart';
 import 'package:flutter_lessons/lessons/lessons.dart';
 import 'package:flutter_lessons/main.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+/// The AppBar title each lesson's own snippet uses, by lesson id.
+///
+/// `null` means the snippet has no AppBar, so the app shows the example under
+/// a minimal AppBar with no title (only the back arrow and the info action).
+const expectedAppBarTitles = <int, String?>{
+  1: null,
+  2: null,
+  3: 'My page',
+  4: null,
+  5: null,
+  6: null,
+  7: null,
+  8: null,
+  9: null,
+  10: null,
+  11: null,
+  12: null,
+  13: null,
+  14: null,
+  15: null,
+  16: null,
+  17: null,
+  18: null,
+  19: null,
+  20: null,
+  21: 'Home',
+  22: 'Fruits',
+};
+
+/// Checks the open lesson screen shows exactly one AppBar: the snippet's own
+/// (or the untitled one), with a back arrow and the info action, and no
+/// generic AppBar carrying the lesson's list title.
+void expectLessonAppBar(WidgetTester tester, Lesson lesson) {
+  final expected = expectedAppBarTitles[lesson.id];
+  final appBars = tester.widgetList<AppBar>(find.byType(AppBar)).toList();
+  expect(appBars, hasLength(1), reason: lesson.title);
+  final title = appBars.single.title;
+  if (expected == null) {
+    expect(title, isNull, reason: lesson.title);
+  } else {
+    expect(title, isA<Text>(), reason: lesson.title);
+    expect((title! as Text).data, expected, reason: lesson.title);
+  }
+  expect(find.widgetWithText(AppBar, lesson.title), findsNothing);
+  expect(
+    find.descendant(
+      of: find.byType(AppBar),
+      matching: find.byTooltip('Lesson notes'),
+    ),
+    findsOneWidget,
+    reason: lesson.title,
+  );
+  expect(
+    find.descendant(of: find.byType(AppBar), matching: find.byType(BackButton)),
+    findsOneWidget,
+    reason: lesson.title,
+  );
+}
 
 void main() {
   final homeList = find.byType(Scrollable).first;
@@ -21,6 +81,71 @@ void main() {
         startsWith('lessons/${lessons[i].number}-'),
       );
     }
+  });
+
+  test('AppBar table covers every lesson', () {
+    expect(
+      expectedAppBarTitles.keys.toList(),
+      lessons.map((l) => l.id).toList(),
+    );
+    for (final lesson in lessons) {
+      expect(
+        lesson.hasOwnAppBar,
+        expectedAppBarTitles[lesson.id] != null,
+        reason: 'hasOwnAppBar for ${lesson.title}',
+      );
+    }
+  });
+
+  group("each lesson opens with its snippet's AppBar", () {
+    for (final lesson in lessons) {
+      final expected = expectedAppBarTitles[lesson.id];
+      testWidgets('${lesson.number}: ${expected ?? '(no title)'}', (
+        tester,
+      ) async {
+        await tester.pumpWidget(const FlutterLessonsApp());
+        final tile = find.widgetWithText(ListTile, lesson.title);
+        await scrollTo(tester, tile);
+        await tester.tap(tile);
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+
+        expectLessonAppBar(tester, lesson);
+
+        // The info action opens this lesson's notes.
+        await tester.tap(find.byTooltip('Lesson notes'));
+        await tester.pumpAndSettle();
+        expect(
+          find.text('Lesson ${lesson.number}: ${lesson.title}'),
+          findsOneWidget,
+        );
+        Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+        await tester.pumpAndSettle();
+
+        // The AppBar's back arrow returns to the lesson list.
+        await tester.tap(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byType(BackButton),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+        expect(tile, findsOneWidget);
+      });
+    }
+  });
+
+  testWidgets('03 keeps the snippet AppBar styling', (tester) async {
+    await tester.pumpWidget(const FlutterLessonsApp());
+    await tester.tap(find.widgetWithText(ListTile, 'Scaffold'));
+    await tester.pumpAndSettle();
+    final appBar = tester.widget<AppBar>(find.byType(AppBar));
+    final context = tester.element(find.byType(AppBar));
+    expect(
+      appBar.backgroundColor,
+      Theme.of(context).colorScheme.primaryContainer,
+    );
   });
 
   testWidgets('home screen lists every lesson title', (tester) async {
@@ -52,7 +177,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull, reason: lesson.title);
-      expect(find.widgetWithText(AppBar, lesson.title), findsOneWidget);
+      expectLessonAppBar(tester, lesson);
 
       // The lesson text opens in a bottom sheet next to the example.
       await tester.tap(find.byTooltip('Lesson notes'));
@@ -165,7 +290,7 @@ void main() {
       ) async {
         await open(tester, title);
         expect(find.widgetWithText(AppBar, 'Home'), findsOneWidget);
-        // Only the lesson screen's back arrow, not a second nested one.
+        // Home's own AppBar has the one back arrow, to the lesson list.
         expect(find.byType(BackButton), findsOneWidget);
 
         await tester.tap(find.text('Open details'));
@@ -177,7 +302,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Details'), findsNothing);
         expect(find.widgetWithText(AppBar, 'Home'), findsOneWidget);
-        expect(find.widgetWithText(AppBar, title), findsOneWidget);
+        expect(find.widgetWithText(AppBar, title), findsNothing);
       });
 
       testWidgets('the Details back arrow returns to Home', (tester) async {
@@ -190,7 +315,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Details'), findsNothing);
         expect(find.text('Open details'), findsOneWidget);
-        expect(find.widgetWithText(AppBar, title), findsOneWidget);
+        expect(find.widgetWithText(AppBar, 'Home'), findsOneWidget);
       });
     });
 
@@ -210,7 +335,7 @@ void main() {
         for (final fruit in ['Apple', 'Banana', 'Cherry']) {
           expect(find.widgetWithText(ListTile, fruit), findsOneWidget);
         }
-        // Only the lesson screen's back arrow, not a second nested one.
+        // Fruits' own AppBar has the one back arrow, to the lesson list.
         expect(find.byType(BackButton), findsOneWidget);
       });
 
@@ -228,7 +353,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('You picked Banana!'), findsNothing);
         expect(find.widgetWithText(AppBar, 'Fruits'), findsOneWidget);
-        expect(find.widgetWithText(AppBar, title), findsOneWidget);
+        expect(find.widgetWithText(AppBar, title), findsNothing);
 
         await tester.tap(find.widgetWithText(ListTile, 'Cherry'));
         await tester.pumpAndSettle();

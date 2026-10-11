@@ -46,8 +46,9 @@ lib/
     22_passing_data.dart
   screens/
     home_screen.dart        ListView of lessons, Navigator.push to each one
-    lesson_screen.dart      AppBar with title, back button and lesson notes
+    lesson_screen.dart      Route for one lesson (uses the lesson's own AppBar)
   widgets/
+    lesson_info_button.dart Info action that opens a lesson's notes
     lesson_notes.dart       Loads a lesson's markdown asset
     simple_markdown.dart    Minimal markdown renderer
 test/
@@ -57,15 +58,17 @@ android/ ios/ web/          Platform runners from `flutter create`
 
 ## Adding a lesson
 
-A lesson is one markdown file, one Dart file and one registry entry. For
-example, a lesson 23 on returning data from a screen:
+A lesson is one markdown file, one Dart file and one registry entry, plus a
+line in the test table. For example, a lesson 23 on returning data from a
+screen:
 
 1. **Text:** add `lessons/23-returning-data.md`. Start it with
    `# Lesson 23: Returning data from a screen` (the test checks for this heading),
    then a `**Date:**` line, the explanation and the code in a fenced block.
    Everything in `lessons/` is bundled as an asset automatically.
 2. **Example:** add `lib/lessons/23_returning_data.dart` with a widget such
-   as `class ReturningDataLesson extends StatelessWidget`.
+   as `class ReturningDataLesson extends StatelessWidget`. Follow the AppBar
+   rule below.
 3. **Registry:** in `lib/lessons/lessons.dart`, import the file and add:
 
    ```dart
@@ -75,11 +78,34 @@ example, a lesson 23 on returning data from a screen:
      date: DateTime(2026, 10, 12),
      markdownPath: 'lessons/23-returning-data.md',
      builder: (_) => const ReturningDataLesson(),
+     hasOwnAppBar: true, // only if the snippet has its own AppBar
    ),
    ```
+4. **Test table:** add the lesson's expected AppBar title to
+   `expectedAppBarTitles` in `test/app_test.dart` (`null` if the snippet has
+   no AppBar). The test fails if a lesson is missing from the table.
 
-That's all: the home screen, the notes sheet and the tests pick it up. Run
-`flutter analyze && flutter test` to confirm.
+The home screen, the notes sheet and the walkthrough test pick the rest up.
+Run `flutter analyze && flutter test` to confirm.
+
+### The AppBar rule
+
+Each lesson's screen uses its snippet's own AppBar, with the info action
+added. There is no shared, titled AppBar around the examples.
+
+- **The snippet has a Scaffold with an AppBar:** the example widget returns
+  that Scaffold exactly as in the snippet, with the same title text and any
+  styling such as `backgroundColor` or `foregroundColor`. Its only addition
+  is `LessonInfoButton(lessonId: NN)` in the AppBar's `actions`. Set
+  `hasOwnAppBar: true` in the registry. That Scaffold is the pushed route, so
+  the AppBar shows the back arrow to the lesson list automatically. Don't set
+  `automaticallyImplyLeading: false`.
+- **The snippet has no AppBar** (just a widget, or a Scaffold without
+  `appBar`): keep the example exactly as written, don't invent a title, and
+  leave `hasOwnAppBar` false. The app shows it under a minimal AppBar with no
+  title, holding only the back arrow and the info action.
+- Screens the lesson pushes itself, like a details screen, keep the AppBar
+  from the snippet. They don't need the info action.
 
 Notes for upcoming navigation lessons:
 
@@ -89,7 +115,9 @@ Notes for upcoming navigation lessons:
 - Named routes, tabs (`DefaultTabController`), drawers or `go_router` can be
   shown self-contained: the example can return its own `Scaffold`, a nested
   `Navigator`, or its own `MaterialApp` / `MaterialApp.router`. That keeps
-  the lesson's routing separate from the app's own navigation.
+  the lesson's routing separate from the app's own navigation. Keep the
+  AppBar rule: the first screen's AppBar carries the info action and a way
+  back to the lesson list.
 - A lesson that needs a package (such as `go_router`) also needs a
   `flutter pub add` line in its markdown and a dependency in `pubspec.yaml`.
 

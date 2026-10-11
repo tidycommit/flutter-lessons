@@ -80,12 +80,12 @@ The first screen has an AppBar titled Fruits and a list of three rows (Apple, Ba
 
 ## How it is adapted in this app
 
-Inside this app the example runs on a lesson screen that already has its own `Scaffold`, `AppBar` and back arrow, and the app's `MaterialApp` lives in `lib/main.dart`. The behavior is the same, with these changes:
+Inside this app the lesson screen is `Lesson22FruitList`'s own `Scaffold`, and the app's `MaterialApp` lives in `lib/main.dart`. The behavior is the same, with these changes:
 
-- There is no `main()` or `runApp()`; the lesson screen shows the list screen directly.
+- There is no `main()` or `runApp()`; tapping the lesson opens the fruit list directly.
 - The classes are named `Lesson22FruitList` and `Lesson22FruitDetail` so they don't clash with other screens in the app. The titles and text are unchanged.
-- The Fruits `AppBar` sets `automaticallyImplyLeading: false`. Otherwise it would show a second back arrow that leaves the lesson.
-- The detail screen is pushed on the app's navigator, so it covers the whole screen and its back arrow returns to the fruit list.
+- The Fruits AppBar is the pushed route's AppBar, so it shows a back arrow that returns to the lesson list. It also has `actions: const [LessonInfoButton(lessonId: 22)]`, the button that opens these notes.
+- The detail screen is pushed on the app's navigator, and its back arrow returns to the fruit list.
 
 ## Example
 
@@ -101,10 +101,8 @@ class Lesson22FruitList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // The lesson screen above already has a back arrow, so this
-        // nested AppBar does not add a second one.
-        automaticallyImplyLeading: false,
         title: const Text('Fruits'),
+        actions: const [LessonInfoButton(lessonId: 22)],
       ),
       body: ListView(
         children: [
@@ -113,8 +111,8 @@ class Lesson22FruitList extends StatelessWidget {
               title: Text(fruit),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                // Pushes onto the app's navigator, so the detail screen
-                // covers the whole screen and its back arrow returns here.
+                // Pushes onto the app's navigator; the detail screen's
+                // back arrow returns here.
                 Navigator.push(
                   context,
                   MaterialPageRoute<void>(

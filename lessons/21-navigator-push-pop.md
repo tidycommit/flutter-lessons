@@ -68,11 +68,11 @@ void main() => runApp(const MaterialApp(home: HomeScreen()));
 
 ## How it is adapted in this app
 
-Inside this app the example already runs on a lesson screen that has its own `Scaffold`, `AppBar` and back arrow, so the code above is adjusted slightly:
+Inside this app the lesson screen is `Lesson21Home`'s own `Scaffold`, so the Home AppBar appears exactly as in the snippet. The code above is adjusted only slightly:
 
 - The classes are named `Lesson21Home` and `Lesson21Details` so they don't clash with the app's own `HomeScreen`. The titles are still Home and Details.
-- The Home `AppBar` sets `automaticallyImplyLeading: false`. Otherwise it would show a second back arrow that leaves the lesson.
-- Details is pushed on the app's navigator, so it covers the whole screen. Its back arrow and the Go back button both return to the lesson's example.
+- The Home AppBar is the pushed route's AppBar, so it shows a back arrow that returns to the lesson list. It also has `actions: const [LessonInfoButton(lessonId: 21)]`, the button that opens these notes.
+- Details is pushed on the app's navigator. Its back arrow and the Go back button both return to Home.
 
 ## Example
 
@@ -86,16 +86,14 @@ class Lesson21Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // The lesson screen above already has a back arrow, so this
-        // nested AppBar does not add a second one.
-        automaticallyImplyLeading: false,
         title: const Text('Home'),
+        actions: const [LessonInfoButton(lessonId: 21)],
       ),
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            // Pushes onto the app's navigator, so Details covers the
-            // whole screen and its back arrow returns here.
+            // Pushes onto the app's navigator; Details' back arrow
+            // returns here.
             Navigator.push(
               context,
               MaterialPageRoute<void>(

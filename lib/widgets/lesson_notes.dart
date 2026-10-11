@@ -20,8 +20,11 @@ class _LessonNotesState extends State<LessonNotes> {
   @override
   void initState() {
     super.initState();
+    // cache: false keeps each load in the current zone. The files are small,
+    // and a cached Future from an earlier widget test would never complete
+    // in a later test's fake-async zone.
     _text = DefaultAssetBundle.of(context)
-        .loadString(widget.lesson.markdownPath);
+        .loadString(widget.lesson.markdownPath, cache: false);
   }
 
   @override

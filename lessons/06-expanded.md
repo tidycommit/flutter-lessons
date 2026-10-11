@@ -12,6 +12,10 @@ In the example the outer `Expanded` lets the row take all the height below the 8
 - Leftover space is divided by `flex`: here 1 + 2 + 1 = 4 parts.
 - `Flexible` is similar but lets the child be smaller than its share.
 
+## In the app
+
+This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+
 ## Example
 
 This is the runnable example in `lib/lessons/06_expanded.dart`:

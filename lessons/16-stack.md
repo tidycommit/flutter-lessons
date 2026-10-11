@@ -12,6 +12,10 @@
 - `Positioned` only works as a direct child of a `Stack`.
 - Taps on the part drawn outside the Stack are not hit-tested.
 
+## In the app
+
+This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+
 ## Example
 
 This is the runnable example in `lib/lessons/16_stack.dart`:

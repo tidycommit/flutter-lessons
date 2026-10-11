@@ -12,6 +12,10 @@
 - Use an empty `SizedBox` for space between things.
 - Both are cheap and can usually be `const`.
 
+## In the app
+
+This snippet has no AppBar of its own, so the app does not invent a title for it. It runs unchanged under a plain AppBar with no title, which holds only the back arrow to the lesson list and the lesson-notes button.
+
 ## Example
 
 This is the runnable example in `lib/lessons/05_padding_sizedbox.dart`:
