@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// The AppBar title from each lesson's snippet, by lesson id. Titles for
 /// 01-10 were supplied by the teacher; 11-20 come from the original
-/// snippets; 21-22 from the lesson code.
+/// snippets; 21-23 from the lesson code.
 const expectedAppBarTitles = <int, String>{
   1: 'Hello',
   2: 'Counter',
@@ -30,6 +30,7 @@ const expectedAppBarTitles = <int, String>{
   20: 'Avatar',
   21: 'Home',
   22: 'Fruits',
+  23: 'Pick a Color',
 };
 
 /// Checks the open lesson screen shows exactly one AppBar, the snippet's own:
@@ -71,7 +72,7 @@ void main() {
   }
 
   test('registry has unique ids, in order, with lesson asset paths', () {
-    expect(lessons, hasLength(22));
+    expect(lessons, hasLength(23));
     for (var i = 0; i < lessons.length; i++) {
       expect(lessons[i].id, i + 1);
       expect(lessons[i].date, isNotNull, reason: lessons[i].title);
@@ -377,6 +378,57 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.widgetWithText(AppBar, 'Cherry'), findsOneWidget);
         expect(find.text('You picked Cherry!'), findsOneWidget);
+      });
+    });
+
+    group('23 Returning a result', () {
+      const title =
+          'Returning a result with Navigator.pop(context, value) and await';
+
+      testWidgets('is listed on the home screen', (tester) async {
+        await tester.pumpWidget(const FlutterLessonsApp());
+        await scrollTo(tester, find.text(title));
+        expect(find.text(title), findsOneWidget);
+        expect(find.text('Oct 12, 2026'), findsOneWidget);
+      });
+
+      testWidgets('picking Blue returns it; the back arrow returns nothing', (
+        tester,
+      ) async {
+        await open(tester, title);
+        expect(find.widgetWithText(AppBar, 'Pick a Color'), findsOneWidget);
+        expect(find.text('Favorite color: none yet'), findsOneWidget);
+
+        await tester.tap(find.text('Choose color'));
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Colors'), findsOneWidget);
+        for (final color in ['Red', 'Green', 'Blue']) {
+          expect(find.widgetWithText(ListTile, color), findsOneWidget);
+        }
+
+        await tester.tap(find.widgetWithText(ListTile, 'Blue'));
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Pick a Color'), findsOneWidget);
+        expect(find.text('Favorite color: Blue'), findsOneWidget);
+
+        // Leaving with the back arrow pops with no value: text unchanged.
+        await tester.tap(find.text('Choose color'));
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Colors'), findsOneWidget);
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Pick a Color'), findsOneWidget);
+        expect(find.text('Favorite color: Blue'), findsOneWidget);
+
+        // Info action opens the notes; the back arrow returns to the list.
+        await tester.tap(find.byTooltip('Lesson notes'));
+        await tester.pumpAndSettle();
+        expect(find.text('Lesson 23: $title'), findsOneWidget);
+        Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+        await tester.pumpAndSettle();
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
       });
     });
   });

@@ -24,6 +24,7 @@ import '19_snack_bar.dart';
 import '20_circle_avatar.dart';
 import '21_navigator_push_pop.dart';
 import '22_passing_data.dart';
+import '23_return_result.dart';
 import 'lesson.dart';
 
 /// Every lesson, in the order shown on the home screen.
@@ -181,5 +182,12 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 10, 11),
     markdownPath: 'lessons/22-passing-data.md',
     builder: (_) => const Lesson22FruitList(),
+  ),
+  Lesson(
+    id: 23,
+    title: 'Returning a result with Navigator.pop(context, value) and await',
+    date: DateTime(2026, 10, 12),
+    markdownPath: 'lessons/23-return-result.md',
+    builder: (_) => const Lesson23PickColor(),
   ),
 ];
