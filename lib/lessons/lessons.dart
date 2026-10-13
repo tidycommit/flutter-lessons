@@ -25,6 +25,7 @@ import '20_circle_avatar.dart';
 import '21_navigator_push_pop.dart';
 import '22_passing_data.dart';
 import '23_return_result.dart';
+import '24_named_routes.dart';
 import 'lesson.dart';
 
 /// Every lesson, in the order shown on the home screen.
@@ -189,5 +190,12 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 10, 12),
     markdownPath: 'lessons/23-return-result.md',
     builder: (_) => const Lesson23PickColor(),
+  ),
+  Lesson(
+    id: 24,
+    title: 'Named routes with routes and Navigator.pushNamed',
+    date: DateTime(2026, 10, 13),
+    markdownPath: 'lessons/24-named-routes.md',
+    builder: (_) => const Lesson24NamedRoutes(),
   ),
 ];
