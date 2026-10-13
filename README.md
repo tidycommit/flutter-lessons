@@ -35,7 +35,7 @@ small built-in renderer (`lib/widgets/simple_markdown.dart`).
 lessons/                    Lesson text, one markdown file per lesson
   01-hello-app.md
   ...
-  22-passing-data.md
+  23-return-result.md
 lib/
   main.dart                 MaterialApp and app theme
   lessons/
@@ -43,7 +43,7 @@ lib/
     lessons.dart            Central registry: the ordered list of all lessons
     01_hello_app.dart       Runnable example widget for each lesson
     ...
-    22_passing_data.dart
+    23_return_result.dart
   screens/
     home_screen.dart        ListView of lessons, Navigator.push to each one
     lesson_screen.dart      Route for one lesson (uses the lesson's own AppBar)
@@ -59,25 +59,24 @@ android/ ios/ web/          Platform runners from `flutter create`
 ## Adding a lesson
 
 A lesson is one markdown file, one Dart file and one registry entry, plus a
-line in the test table. For example, a lesson 23 on returning data from a
-screen:
+line in the test table. For example, a lesson 24 on named routes:
 
-1. **Text:** add `lessons/23-returning-data.md`. Start it with
-   `# Lesson 23: Returning data from a screen` (the test checks for this heading),
+1. **Text:** add `lessons/24-named-routes.md`. Start it with
+   `# Lesson 24: Named routes` (the test checks for this heading),
    then a `**Date:**` line, the explanation and the code in a fenced block.
    Everything in `lessons/` is bundled as an asset automatically.
-2. **Example:** add `lib/lessons/23_returning_data.dart` with a widget such
-   as `class ReturningDataLesson extends StatelessWidget`. Follow the AppBar
+2. **Example:** add `lib/lessons/24_named_routes.dart` with a widget such
+   as `class NamedRoutesLesson extends StatelessWidget`. Follow the AppBar
    rule below.
 3. **Registry:** in `lib/lessons/lessons.dart`, import the file and add:
 
    ```dart
    Lesson(
-     id: 23,
-     title: 'Returning data from a screen',
-     date: DateTime(2026, 10, 12),
-     markdownPath: 'lessons/23-returning-data.md',
-     builder: (_) => const ReturningDataLesson(),
+     id: 24,
+     title: 'Named routes',
+     date: DateTime(2026, 10, 13),
+     markdownPath: 'lessons/24-named-routes.md',
+     builder: (_) => const NamedRoutesLesson(),
    ),
    ```
 4. **Test table:** add the lesson's AppBar title to `expectedAppBarTitles`
