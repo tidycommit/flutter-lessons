@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// The AppBar title from each lesson's snippet, by lesson id. Titles for
 /// 01-10 were supplied by the teacher; 11-20 come from the original
-/// snippets; 21-23 from the lesson code.
+/// snippets; 21-24 from the lesson code.
 const expectedAppBarTitles = <int, String>{
   1: 'Hello',
   2: 'Counter',
@@ -31,6 +31,7 @@ const expectedAppBarTitles = <int, String>{
   21: 'Home',
   22: 'Fruits',
   23: 'Pick a Color',
+  24: 'Home',
 };
 
 /// Checks the open lesson screen shows exactly one AppBar, the snippet's own:
@@ -72,7 +73,7 @@ void main() {
   }
 
   test('registry has unique ids, in order, with lesson asset paths', () {
-    expect(lessons, hasLength(23));
+    expect(lessons, hasLength(24));
     for (var i = 0; i < lessons.length; i++) {
       expect(lessons[i].id, i + 1);
       expect(lessons[i].date, isNotNull, reason: lessons[i].title);
@@ -427,6 +428,69 @@ void main() {
         Navigator.of(tester.element(find.byType(BottomSheet))).pop();
         await tester.pumpAndSettle();
         await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+      });
+    });
+
+    group('24 Named routes', () {
+      const title = 'Named routes with routes and Navigator.pushNamed';
+
+      testWidgets('is listed on the home screen', (tester) async {
+        await tester.pumpWidget(const FlutterLessonsApp());
+        await scrollTo(tester, find.text(title));
+        expect(find.text(title), findsOneWidget);
+        expect(find.text('Oct 13, 2026'), findsOneWidget);
+      });
+
+      testWidgets('Settings and About open by name; back returns to Home', (
+        tester,
+      ) async {
+        await open(tester, title);
+        expect(find.widgetWithText(AppBar, 'Home'), findsOneWidget);
+
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Settings'));
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Settings'), findsOneWidget);
+        expect(find.text('Settings screen'), findsOneWidget);
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Home'), findsOneWidget);
+
+        await tester.tap(find.widgetWithText(ElevatedButton, 'About'));
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'About'), findsOneWidget);
+        expect(find.text('About this app'), findsOneWidget);
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Home'), findsOneWidget);
+
+        // Info action opens the notes.
+        await tester.tap(find.byTooltip('Lesson notes'));
+        await tester.pumpAndSettle();
+        expect(find.text('Lesson 24: $title'), findsOneWidget);
+        Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+        await tester.pumpAndSettle();
+
+        // Home's back arrow returns to the lesson list.
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+      });
+
+      testWidgets('system back: Settings to Home, then Home to the list', (
+        tester,
+      ) async {
+        await open(tester, title);
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Settings'));
+        await tester.pumpAndSettle();
+        expect(find.text('Settings screen'), findsOneWidget);
+
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Home'), findsOneWidget);
+
+        await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
         expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
       });
