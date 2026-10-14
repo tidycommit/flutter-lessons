@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// The AppBar title from each lesson's snippet, by lesson id. Titles for
 /// 01-10 were supplied by the teacher; 11-20 come from the original
-/// snippets; 21-24 from the lesson code.
+/// snippets; 21-25 from the lesson code.
 const expectedAppBarTitles = <int, String>{
   1: 'Hello',
   2: 'Counter',
@@ -32,10 +32,16 @@ const expectedAppBarTitles = <int, String>{
   22: 'Fruits',
   23: 'Pick a Color',
   24: 'Home',
+  25: 'Login',
 };
 
+/// Lessons whose first screen has no back arrow by design; their AppBar
+/// actions carry a "Back to lessons" button instead.
+const lessonsWithoutBackArrow = {25};
+
 /// Checks the open lesson screen shows exactly one AppBar, the snippet's own:
-/// the expected title, default styling, a back arrow and the info action.
+/// the expected title, default styling, a way back to the lesson list (the
+/// back arrow, or the "Back to lessons" action) and the info action.
 void expectLessonAppBar(WidgetTester tester, Lesson lesson) {
   final appBars = tester.widgetList<AppBar>(find.byType(AppBar)).toList();
   expect(appBars, hasLength(1), reason: lesson.title);
@@ -57,11 +63,30 @@ void expectLessonAppBar(WidgetTester tester, Lesson lesson) {
     findsOneWidget,
     reason: lesson.title,
   );
+  final noBackArrow = lessonsWithoutBackArrow.contains(lesson.id);
   expect(
     find.descendant(of: find.byType(AppBar), matching: find.byType(BackButton)),
-    findsOneWidget,
+    noBackArrow ? findsNothing : findsOneWidget,
     reason: lesson.title,
   );
+  expect(
+    find.descendant(
+      of: find.byType(AppBar),
+      matching: find.byTooltip('Back to lessons'),
+    ),
+    noBackArrow ? findsOneWidget : findsNothing,
+    reason: lesson.title,
+  );
+}
+
+/// Leaves the open lesson for the lesson list the way its AppBar offers.
+Future<void> leaveLesson(WidgetTester tester, Lesson lesson) async {
+  if (lessonsWithoutBackArrow.contains(lesson.id)) {
+    await tester.tap(find.byTooltip('Back to lessons'));
+  } else {
+    await tester.pageBack();
+  }
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -73,7 +98,7 @@ void main() {
   }
 
   test('registry has unique ids, in order, with lesson asset paths', () {
-    expect(lessons, hasLength(24));
+    expect(lessons, hasLength(25));
     for (var i = 0; i < lessons.length; i++) {
       expect(lessons[i].id, i + 1);
       expect(lessons[i].date, isNotNull, reason: lessons[i].title);
@@ -115,14 +140,8 @@ void main() {
         Navigator.of(tester.element(find.byType(BottomSheet))).pop();
         await tester.pumpAndSettle();
 
-        // The AppBar's back arrow returns to the lesson list.
-        await tester.tap(
-          find.descendant(
-            of: find.byType(AppBar),
-            matching: find.byType(BackButton),
-          ),
-        );
-        await tester.pumpAndSettle();
+        // The AppBar's way back returns to the lesson list.
+        await leaveLesson(tester, lesson);
         expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
         expect(tile, findsOneWidget);
       });
@@ -172,8 +191,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(BottomSheet), findsNothing);
 
-      await tester.pageBack();
-      await tester.pumpAndSettle();
+      await leaveLesson(tester, lesson);
       expect(find.text('Flutter Lessons'), findsOneWidget);
       expect(tester.takeException(), isNull, reason: lesson.title);
     }
@@ -490,6 +508,99 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.widgetWithText(AppBar, 'Home'), findsOneWidget);
 
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+      });
+    });
+
+    group('25 pushReplacement and pushAndRemoveUntil', () {
+      const title =
+          'Leaving screens behind with pushReplacement and pushAndRemoveUntil';
+      final backArrow = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byType(BackButton),
+      );
+
+      testWidgets('is listed on the home screen', (tester) async {
+        await tester.pumpWidget(const FlutterLessonsApp());
+        await scrollTo(tester, find.text(title));
+        expect(find.text(title), findsOneWidget);
+        expect(find.text('Oct 14, 2026'), findsOneWidget);
+      });
+
+      testWidgets('log in replaces Login; log out clears back to Login', (
+        tester,
+      ) async {
+        await open(tester, title);
+        expect(find.widgetWithText(AppBar, 'Login'), findsOneWidget);
+        expect(backArrow, findsNothing);
+
+        // pushReplacement: Home takes Login's place, no back arrow.
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Log in'));
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Home'), findsOneWidget);
+        expect(find.widgetWithText(AppBar, 'Login'), findsNothing);
+        expect(find.text('Welcome! You are logged in.'), findsOneWidget);
+        expect(backArrow, findsNothing);
+        expect(find.byTooltip('Lesson notes'), findsOneWidget);
+        expect(find.byTooltip('Back to lessons'), findsOneWidget);
+
+        // Settings is a normal push, so it has a back arrow to Home.
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Open Settings'));
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Settings'), findsOneWidget);
+        expect(backArrow, findsOneWidget);
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Home'), findsOneWidget);
+
+        // pushAndRemoveUntil: Login alone, no back arrow.
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Open Settings'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Log out'));
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Login'), findsOneWidget);
+        expect(find.widgetWithText(AppBar, 'Home'), findsNothing);
+        expect(find.widgetWithText(AppBar, 'Settings'), findsNothing);
+        expect(backArrow, findsNothing);
+        expect(tester.takeException(), isNull);
+
+        // The info action still opens the notes.
+        await tester.tap(find.byTooltip('Lesson notes'));
+        await tester.pumpAndSettle();
+        expect(find.text('Lesson 25: $title'), findsOneWidget);
+        Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+        await tester.pumpAndSettle();
+
+        // The lesson list survived and is still reachable.
+        await tester.tap(find.byTooltip('Back to lessons'));
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+        expect(find.widgetWithText(ListTile, title), findsOneWidget);
+      });
+
+      testWidgets('Home leads back to the list; system back too', (
+        tester,
+      ) async {
+        await open(tester, title);
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Log in'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byTooltip('Back to lessons'));
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+
+        // System back: Settings to Home, then Home to the list.
+        final tile = find.widgetWithText(ListTile, title);
+        await tester.tap(tile);
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Log in'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Open Settings'));
+        await tester.pumpAndSettle();
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Home'), findsOneWidget);
         await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
         expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);

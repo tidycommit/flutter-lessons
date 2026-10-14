@@ -26,6 +26,7 @@ import '21_navigator_push_pop.dart';
 import '22_passing_data.dart';
 import '23_return_result.dart';
 import '24_named_routes.dart';
+import '25_push_replacement.dart';
 import 'lesson.dart';
 
 /// Every lesson, in the order shown on the home screen.
@@ -197,5 +198,12 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 10, 13),
     markdownPath: 'lessons/24-named-routes.md',
     builder: (_) => const Lesson24NamedRoutes(),
+  ),
+  Lesson(
+    id: 25,
+    title: 'Leaving screens behind with pushReplacement and pushAndRemoveUntil',
+    date: DateTime(2026, 10, 14),
+    markdownPath: 'lessons/25-push-replacement.md',
+    builder: (_) => const Lesson25LoginFlow(),
   ),
 ];
