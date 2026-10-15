@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// The AppBar title from each lesson's snippet, by lesson id. Titles for
 /// 01-10 were supplied by the teacher; 11-20 come from the original
-/// snippets; 21-25 from the lesson code.
+/// snippets; 21-26 from the lesson code.
 const expectedAppBarTitles = <int, String>{
   1: 'Hello',
   2: 'Counter',
@@ -33,6 +33,7 @@ const expectedAppBarTitles = <int, String>{
   23: 'Pick a Color',
   24: 'Home',
   25: 'Login',
+  26: 'Home',
 };
 
 /// Lessons whose first screen has no back arrow by design; their AppBar
@@ -98,7 +99,7 @@ void main() {
   }
 
   test('registry has unique ids, in order, with lesson asset paths', () {
-    expect(lessons, hasLength(25));
+    expect(lessons, hasLength(26));
     for (var i = 0; i < lessons.length; i++) {
       expect(lessons[i].id, i + 1);
       expect(lessons[i].date, isNotNull, reason: lessons[i].title);
@@ -602,6 +603,62 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.widgetWithText(AppBar, 'Home'), findsOneWidget);
         await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+      });
+    });
+
+    group('26 BottomNavigationBar', () {
+      const title = 'BottomNavigationBar';
+      final bar = find.byType(BottomNavigationBar);
+
+      testWidgets('is listed on the home screen', (tester) async {
+        await tester.pumpWidget(const FlutterLessonsApp());
+        await scrollTo(tester, find.widgetWithText(ListTile, title));
+        expect(find.widgetWithText(ListTile, title), findsOneWidget);
+        expect(find.text('Oct 15, 2026'), findsOneWidget);
+      });
+
+      testWidgets('tabs swap title and body in place, no route pushed', (
+        tester,
+      ) async {
+        await open(tester, title);
+        int currentIndex() =>
+            tester.widget<BottomNavigationBar>(bar).currentIndex;
+
+        expect(find.widgetWithText(AppBar, 'Home'), findsOneWidget);
+        expect(find.text('Home page'), findsOneWidget);
+        expect(currentIndex(), 0);
+        for (final icon in [Icons.home, Icons.search, Icons.person]) {
+          expect(
+            find.descendant(of: bar, matching: find.byIcon(icon)),
+            findsOneWidget,
+          );
+        }
+
+        const tabs = {1: 'Search', 2: 'Profile', 0: 'Home'};
+        for (final MapEntry(key: index, value: name) in tabs.entries) {
+          await tester.tap(find.descendant(of: bar, matching: find.text(name)));
+          await tester.pumpAndSettle();
+          expect(currentIndex(), index);
+          expect(find.widgetWithText(AppBar, name), findsOneWidget);
+          expect(find.text('$name page'), findsOneWidget);
+          // Still a single lesson screen with one AppBar: nothing pushed.
+          expect(find.byType(AppBar), findsOneWidget);
+          expect(find.byTooltip('Lesson notes'), findsOneWidget);
+        }
+
+        // After switching tabs, one back goes straight to the lesson list.
+        await tester.tap(
+          find.descendant(of: bar, matching: find.text('Profile')),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.byTooltip('Lesson notes'));
+        await tester.pumpAndSettle();
+        expect(find.text('Lesson 26: $title'), findsOneWidget);
+        Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+        await tester.pumpAndSettle();
+        await tester.pageBack();
         await tester.pumpAndSettle();
         expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
       });
