@@ -35,7 +35,7 @@ small built-in renderer (`lib/widgets/simple_markdown.dart`).
 lessons/                    Lesson text, one markdown file per lesson
   01-hello-app.md
   ...
-  25-push-replacement.md
+  26-bottom-navigation-bar.md
 lib/
   main.dart                 MaterialApp and app theme
   lessons/
@@ -43,7 +43,7 @@ lib/
     lessons.dart            Central registry: the ordered list of all lessons
     01_hello_app.dart       Runnable example widget for each lesson
     ...
-    25_push_replacement.dart
+    26_bottom_navigation_bar.dart
   screens/
     home_screen.dart        ListView of lessons, Navigator.push to each one
     lesson_screen.dart      Route for one lesson (uses the lesson's own AppBar)
@@ -59,23 +59,23 @@ android/ ios/ web/          Platform runners from `flutter create`
 ## Adding a lesson
 
 A lesson is one markdown file, one Dart file and one registry entry, plus a
-line in the test table. For example, a lesson 26 on a Drawer menu:
+line in the test table. For example, a lesson 27 on a Drawer menu:
 
-1. **Text:** add `lessons/26-drawer.md`. Start it with
-   `# Lesson 26: Drawer menu` (the test checks for this heading),
+1. **Text:** add `lessons/27-drawer.md`. Start it with
+   `# Lesson 27: Drawer menu` (the test checks for this heading),
    then a `**Date:**` line, the explanation and the code in a fenced block.
    Everything in `lessons/` is bundled as an asset automatically.
-2. **Example:** add `lib/lessons/26_drawer.dart` with a widget such
+2. **Example:** add `lib/lessons/27_drawer.dart` with a widget such
    as `class DrawerLesson extends StatelessWidget`. Follow the AppBar
    rule below.
 3. **Registry:** in `lib/lessons/lessons.dart`, import the file and add:
 
    ```dart
    Lesson(
-     id: 26,
+     id: 27,
      title: 'Drawer menu',
-     date: DateTime(2026, 10, 15),
-     markdownPath: 'lessons/26-drawer.md',
+     date: DateTime(2026, 10, 16),
+     markdownPath: 'lessons/27-drawer.md',
      builder: (_) => const DrawerLesson(),
    ),
    ```
