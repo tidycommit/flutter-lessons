@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// The AppBar title from each lesson's snippet, by lesson id. Titles for
 /// 01-10 were supplied by the teacher; 11-20 come from the original
-/// snippets; 21-26 from the lesson code.
+/// snippets; 21-27 from the lesson code.
 const expectedAppBarTitles = <int, String>{
   1: 'Hello',
   2: 'Counter',
@@ -34,6 +34,7 @@ const expectedAppBarTitles = <int, String>{
   24: 'Home',
   25: 'Login',
   26: 'Home',
+  27: 'Tabs Tip',
 };
 
 /// Lessons whose first screen has no back arrow by design; their AppBar
@@ -99,7 +100,7 @@ void main() {
   }
 
   test('registry has unique ids, in order, with lesson asset paths', () {
-    expect(lessons, hasLength(26));
+    expect(lessons, hasLength(27));
     for (var i = 0; i < lessons.length; i++) {
       expect(lessons[i].id, i + 1);
       expect(lessons[i].date, isNotNull, reason: lessons[i].title);
@@ -661,6 +662,100 @@ void main() {
         await tester.pageBack();
         await tester.pumpAndSettle();
         expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+      });
+    });
+
+    group('27 TabBar', () {
+      const title = 'Tabs with TabBar, TabBarView, and DefaultTabController';
+      final tabBar = find.byType(TabBar);
+
+      testWidgets('is listed on the home screen', (tester) async {
+        await tester.pumpWidget(const FlutterLessonsApp());
+        await scrollTo(tester, find.text(title));
+        expect(find.text(title), findsOneWidget);
+        expect(find.text('Oct 16, 2026'), findsOneWidget);
+      });
+
+      testWidgets('tap and swipe switch tabs; info and back work', (
+        tester,
+      ) async {
+        await open(tester, title);
+        int selected() =>
+            DefaultTabController.of(tester.element(find.byType(TabBarView)))
+                .index;
+
+        expect(find.widgetWithText(AppBar, 'Tabs Tip'), findsOneWidget);
+        // The TabBar sits in the AppBar's bottom slot.
+        expect(
+          find.descendant(of: find.byType(AppBar), matching: tabBar),
+          findsOneWidget,
+        );
+        for (final (icon, label) in [
+          (Icons.directions_car, 'Car'),
+          (Icons.directions_bike, 'Bike'),
+          (Icons.directions_walk, 'Walk'),
+        ]) {
+          expect(
+            find.descendant(
+              of: tabBar,
+              matching: find.widgetWithIcon(Tab, icon),
+            ),
+            findsOneWidget,
+          );
+          expect(
+            find.descendant(of: tabBar, matching: find.text(label)),
+            findsOneWidget,
+          );
+        }
+        expect(selected(), 0);
+        expect(find.text('Driving: 10 min'), findsOneWidget);
+
+        // Tapping Bike slides to its page.
+        await tester.tap(
+          find.descendant(of: tabBar, matching: find.text('Bike')),
+        );
+        await tester.pumpAndSettle();
+        expect(selected(), 1);
+        expect(find.text('Biking: 25 min'), findsOneWidget);
+        expect(find.text('Driving: 10 min'), findsNothing);
+
+        // Swiping left moves on to Walk.
+        await tester.fling(
+          find.byType(TabBarView),
+          const Offset(-400, 0),
+          1000,
+        );
+        await tester.pumpAndSettle();
+        expect(selected(), 2);
+        expect(find.text('Walking: 50 min'), findsOneWidget);
+
+        // Swiping right goes back to Bike.
+        await tester.fling(find.byType(TabBarView), const Offset(400, 0), 1000);
+        await tester.pumpAndSettle();
+        expect(selected(), 1);
+        expect(find.text('Biking: 25 min'), findsOneWidget);
+
+        // No route was pushed: still one AppBar, one back arrow to the list.
+        expect(find.byType(AppBar), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byType(BackButton),
+          ),
+          findsOneWidget,
+        );
+
+        await tester.tap(find.byTooltip('Lesson notes'));
+        await tester.pumpAndSettle();
+        expect(find.text('Lesson 27: $title'), findsOneWidget);
+        Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+        await tester.pumpAndSettle();
+        expect(selected(), 1);
+
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+        expect(find.widgetWithText(ListTile, title), findsOneWidget);
       });
     });
   });
