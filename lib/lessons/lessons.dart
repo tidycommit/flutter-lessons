@@ -29,6 +29,7 @@ import '24_named_routes.dart';
 import '25_push_replacement.dart';
 import '26_bottom_navigation_bar.dart';
 import '27_tabbar.dart';
+import '28_drawer.dart';
 import 'lesson.dart';
 
 /// Every lesson, in the order shown on the home screen.
@@ -221,5 +222,12 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 10, 16),
     markdownPath: 'lessons/27-tabbar.md',
     builder: (_) => const Lesson27Tabs(),
+  ),
+  Lesson(
+    id: 28,
+    title: 'A Drawer menu that navigates',
+    date: DateTime(2026, 10, 17),
+    markdownPath: 'lessons/28-drawer.md',
+    builder: (_) => const Lesson28Drawer(),
   ),
 ];
