@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// The AppBar title from each lesson's snippet, by lesson id. Titles for
 /// 01-10 were supplied by the teacher; 11-20 come from the original
-/// snippets; 21-27 from the lesson code.
+/// snippets; 21-28 from the lesson code.
 const expectedAppBarTitles = <int, String>{
   1: 'Hello',
   2: 'Counter',
@@ -35,11 +35,13 @@ const expectedAppBarTitles = <int, String>{
   25: 'Login',
   26: 'Home',
   27: 'Tabs Tip',
+  28: 'Drawer Tip',
 };
 
-/// Lessons whose first screen has no back arrow by design; their AppBar
-/// actions carry a "Back to lessons" button instead.
-const lessonsWithoutBackArrow = {25};
+/// Lessons whose first screen has no back arrow (by design in 25; in 28 the
+/// drawer's hamburger takes the leading slot); their AppBar actions carry a
+/// "Back to lessons" button instead.
+const lessonsWithoutBackArrow = {25, 28};
 
 /// Checks the open lesson screen shows exactly one AppBar, the snippet's own:
 /// the expected title, default styling, a way back to the lesson list (the
@@ -100,7 +102,7 @@ void main() {
   }
 
   test('registry has unique ids, in order, with lesson asset paths', () {
-    expect(lessons, hasLength(27));
+    expect(lessons, hasLength(28));
     for (var i = 0; i < lessons.length; i++) {
       expect(lessons[i].id, i + 1);
       expect(lessons[i].date, isNotNull, reason: lessons[i].title);
@@ -756,6 +758,151 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
         expect(find.widgetWithText(ListTile, title), findsOneWidget);
+      });
+    });
+
+    group('28 Drawer', () {
+      const title = 'A Drawer menu that navigates';
+      final drawer = find.byType(Drawer);
+      final appBarBackArrow = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byType(BackButton),
+      );
+
+      ScaffoldState scaffold(WidgetTester tester) =>
+          tester.firstState<ScaffoldState>(find.byType(Scaffold));
+
+      Future<void> openDrawer(WidgetTester tester) async {
+        await tester.tap(find.byTooltip('Open navigation menu'));
+        await tester.pumpAndSettle();
+        expect(drawer, findsOneWidget);
+        expect(scaffold(tester).isDrawerOpen, isTrue);
+      }
+
+      void expectDrawerTip(WidgetTester tester) {
+        expect(find.widgetWithText(AppBar, 'Drawer Tip'), findsOneWidget);
+        expect(
+          find.text('Tap the menu icon to open the drawer'),
+          findsOneWidget,
+        );
+        expect(drawer, findsNothing);
+        expect(scaffold(tester).isDrawerOpen, isFalse);
+      }
+
+      testWidgets('is listed on the home screen', (tester) async {
+        await tester.pumpWidget(const FlutterLessonsApp());
+        await scrollTo(tester, find.text(title));
+        expect(find.text(title), findsOneWidget);
+        expect(find.text('Oct 17, 2026'), findsOneWidget);
+      });
+
+      testWidgets('the hamburger opens the drawer; Home closes it', (
+        tester,
+      ) async {
+        await open(tester, title);
+        expectDrawerTip(tester);
+        // The hamburger is the AppBar's leading widget, so no back arrow;
+        // the way back is the "Back to lessons" action.
+        expect(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byType(DrawerButton),
+          ),
+          findsOneWidget,
+        );
+        expect(appBarBackArrow, findsNothing);
+        expect(find.byTooltip('Back to lessons'), findsOneWidget);
+
+        await openDrawer(tester);
+        expect(
+          find.descendant(of: drawer, matching: find.byType(DrawerHeader)),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(of: drawer, matching: find.text('Menu')),
+          findsOneWidget,
+        );
+        for (final (icon, label) in [
+          (Icons.home, 'Home'),
+          (Icons.settings, 'Settings'),
+          (Icons.info_outline, 'About'),
+        ]) {
+          final row = find.descendant(
+            of: drawer,
+            matching: find.widgetWithText(ListTile, label),
+          );
+          expect(row, findsOneWidget);
+          expect(
+            find.descendant(of: row, matching: find.byIcon(icon)),
+            findsOneWidget,
+          );
+        }
+
+        // Home only closes the drawer.
+        await tester.tap(
+          find.descendant(of: drawer, matching: find.text('Home')),
+        );
+        await tester.pumpAndSettle();
+        expectDrawerTip(tester);
+        expect(find.byType(AppBar), findsOneWidget);
+      });
+
+      testWidgets('swiping in from the left edge opens the drawer', (
+        tester,
+      ) async {
+        await open(tester, title);
+        await tester.dragFrom(const Offset(5, 300), const Offset(300, 0));
+        await tester.pumpAndSettle();
+        expect(scaffold(tester).isDrawerOpen, isTrue);
+      });
+
+      for (final page in ['Settings', 'About']) {
+        testWidgets('$page closes the drawer, opens $page; back returns', (
+          tester,
+        ) async {
+          await open(tester, title);
+          await openDrawer(tester);
+
+          await tester.tap(
+            find.descendant(of: drawer, matching: find.text(page)),
+          );
+          await tester.pumpAndSettle();
+          expect(find.widgetWithText(AppBar, page), findsOneWidget);
+          expect(find.text('This is the $page page'), findsOneWidget);
+          expect(appBarBackArrow, findsOneWidget);
+          expect(drawer, findsNothing);
+
+          // The back arrow returns to Drawer Tip with the drawer closed.
+          await tester.pageBack();
+          await tester.pumpAndSettle();
+          expectDrawerTip(tester);
+          expect(find.text('This is the $page page'), findsNothing);
+        });
+      }
+
+      testWidgets('info, Back to lessons and system back work', (tester) async {
+        await open(tester, title);
+        await tester.tap(find.byTooltip('Lesson notes'));
+        await tester.pumpAndSettle();
+        expect(find.text('Lesson 28: $title'), findsOneWidget);
+        Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byTooltip('Back to lessons'));
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+        expect(find.widgetWithText(ListTile, title), findsOneWidget);
+
+        // System back: first closes an open drawer, then leaves the lesson.
+        await tester.tap(find.widgetWithText(ListTile, title));
+        await tester.pumpAndSettle();
+        await openDrawer(tester);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expectDrawerTip(tester);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
       });
     });
   });
