@@ -35,7 +35,7 @@ small built-in renderer (`lib/widgets/simple_markdown.dart`).
 lessons/                    Lesson text, one markdown file per lesson
   01-hello-app.md
   ...
-  28-drawer.md
+  29-dialogs-bottom-sheets.md
 lib/
   main.dart                 MaterialApp and app theme
   lessons/
@@ -43,7 +43,7 @@ lib/
     lessons.dart            Central registry: the ordered list of all lessons
     01_hello_app.dart       Runnable example widget for each lesson
     ...
-    28_drawer.dart
+    29_dialogs_bottom_sheets.dart
   screens/
     home_screen.dart        ListView of lessons, Navigator.push to each one
     lesson_screen.dart      Route for one lesson (uses the lesson's own AppBar)
@@ -59,24 +59,24 @@ android/ ios/ web/          Platform runners from `flutter create`
 ## Adding a lesson
 
 A lesson is one markdown file, one Dart file and one registry entry, plus a
-line in the test table. For example, a lesson 29 on an AlertDialog:
+line in the test table. For example, a lesson 30 on a Hero animation:
 
-1. **Text:** add `lessons/29-alert-dialog.md`. Start it with
-   `# Lesson 29: AlertDialog` (the test checks for this heading),
+1. **Text:** add `lessons/30-hero.md`. Start it with
+   `# Lesson 30: Hero animation` (the test checks for this heading),
    then a `**Date:**` line, the explanation and the code in a fenced block.
    Everything in `lessons/` is bundled as an asset automatically.
-2. **Example:** add `lib/lessons/29_alert_dialog.dart` with a widget such
-   as `class AlertDialogLesson extends StatelessWidget`. Follow the AppBar
+2. **Example:** add `lib/lessons/30_hero.dart` with a widget such
+   as `class HeroLesson extends StatelessWidget`. Follow the AppBar
    rule below.
 3. **Registry:** in `lib/lessons/lessons.dart`, import the file and add:
 
    ```dart
    Lesson(
-     id: 29,
-     title: 'AlertDialog',
-     date: DateTime(2026, 10, 18),
-     markdownPath: 'lessons/29-alert-dialog.md',
-     builder: (_) => const AlertDialogLesson(),
+     id: 30,
+     title: 'Hero animation',
+     date: DateTime(2026, 10, 19),
+     markdownPath: 'lessons/30-hero.md',
+     builder: (_) => const HeroLesson(),
    ),
    ```
 4. **Test table:** add the lesson's AppBar title to `expectedAppBarTitles`
@@ -121,6 +121,9 @@ Notes for upcoming navigation lessons:
   `leading` slot, where the back arrow would be. Keep the snippet's AppBar
   and add a "Back to lessons" action before the info action (lessons 25 and
   28), and add the lesson id to `lessonsWithoutBackArrow` in the tests.
+- `showDialog` and `showModalBottomSheet` push routes on top of the lesson
+  screen (lesson 29). They pop on their own, so the lesson screen keeps its
+  normal back arrow and needs no "Back to lessons" action.
 - A lesson that needs a package (such as `go_router`) also needs a
   `flutter pub add` line in its markdown and a dependency in `pubspec.yaml`.
 
