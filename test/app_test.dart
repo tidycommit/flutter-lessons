@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// The AppBar title from each lesson's snippet, by lesson id. Titles for
 /// 01-10 were supplied by the teacher; 11-20 come from the original
-/// snippets; 21-28 from the lesson code.
+/// snippets; 21-29 from the lesson code.
 const expectedAppBarTitles = <int, String>{
   1: 'Hello',
   2: 'Counter',
@@ -36,6 +36,7 @@ const expectedAppBarTitles = <int, String>{
   26: 'Home',
   27: 'Tabs Tip',
   28: 'Drawer Tip',
+  29: 'Popups Tip',
 };
 
 /// Lessons whose first screen has no back arrow (by design in 25; in 28 the
@@ -102,7 +103,7 @@ void main() {
   }
 
   test('registry has unique ids, in order, with lesson asset paths', () {
-    expect(lessons, hasLength(28));
+    expect(lessons, hasLength(29));
     for (var i = 0; i < lessons.length; i++) {
       expect(lessons[i].id, i + 1);
       expect(lessons[i].date, isNotNull, reason: lessons[i].title);
@@ -900,6 +901,219 @@ void main() {
         await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
         expectDrawerTip(tester);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+      });
+    });
+
+    group('29 Dialogs and bottom sheets', () {
+      const title = 'showDialog and showModalBottomSheet as routes';
+      final dialog = find.byType(AlertDialog);
+      final sheet = find.byType(BottomSheet);
+      final appBarBackArrow = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byType(BackButton),
+      );
+
+      Future<void> openDialog(WidgetTester tester) async {
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Delete photo'));
+        await tester.pumpAndSettle();
+        expect(dialog, findsOneWidget);
+        expect(
+          find.descendant(of: dialog, matching: find.text('Delete photo?')),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: dialog,
+            matching: find.text('This cannot be undone.'),
+          ),
+          findsOneWidget,
+        );
+        for (final label in ['Cancel', 'Delete']) {
+          expect(
+            find.descendant(
+              of: dialog,
+              matching: find.widgetWithText(TextButton, label),
+            ),
+            findsOneWidget,
+          );
+        }
+      }
+
+      Future<void> openSheet(WidgetTester tester) async {
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Share'));
+        await tester.pumpAndSettle();
+        expect(sheet, findsOneWidget);
+        for (final (icon, label) in [
+          (Icons.email, 'Email'),
+          (Icons.message, 'Messages'),
+        ]) {
+          final row = find.descendant(
+            of: sheet,
+            matching: find.widgetWithText(ListTile, label),
+          );
+          expect(row, findsOneWidget);
+          expect(
+            find.descendant(of: row, matching: find.byIcon(icon)),
+            findsOneWidget,
+          );
+        }
+      }
+
+      void expectMessage(String message) {
+        expect(find.text(message), findsOneWidget);
+        expect(dialog, findsNothing);
+        expect(sheet, findsNothing);
+        // Still the lesson screen: the popup route is gone, nothing else.
+        expect(find.widgetWithText(AppBar, 'Popups Tip'), findsOneWidget);
+      }
+
+      testWidgets('is listed on the home screen', (tester) async {
+        await tester.pumpWidget(const FlutterLessonsApp());
+        await scrollTo(tester, find.text(title));
+        expect(find.text(title), findsOneWidget);
+        expect(find.text('Oct 18, 2026'), findsOneWidget);
+      });
+
+      testWidgets("opens on Popups Tip with the snippet's AppBar", (
+        tester,
+      ) async {
+        await open(tester, title);
+        final appBar = tester.widget<AppBar>(find.byType(AppBar));
+        expect((appBar.title! as Text).data, 'Popups Tip');
+        expect(appBar.backgroundColor, isNull);
+        expect(appBar.foregroundColor, isNull);
+        expect(find.text('Nothing chosen yet'), findsOneWidget);
+        expect(
+          find.widgetWithText(ElevatedButton, 'Delete photo'),
+          findsOneWidget,
+        );
+        expect(find.widgetWithText(ElevatedButton, 'Share'), findsOneWidget);
+        // The pushed lesson screen has the back arrow to the list, and the
+        // info action in the AppBar.
+        expect(appBarBackArrow, findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byTooltip('Lesson notes'),
+          ),
+          findsOneWidget,
+        );
+        expect(find.byTooltip('Back to lessons'), findsNothing);
+      });
+
+      testWidgets('Delete photo, then Delete: Photo deleted', (tester) async {
+        await open(tester, title);
+        await openDialog(tester);
+        await tester.tap(find.widgetWithText(TextButton, 'Delete'));
+        await tester.pumpAndSettle();
+        expectMessage('Photo deleted');
+      });
+
+      testWidgets('Delete photo, then Cancel: Kept the photo', (tester) async {
+        await open(tester, title);
+        await openDialog(tester);
+        await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+        await tester.pumpAndSettle();
+        expectMessage('Kept the photo');
+      });
+
+      testWidgets('tapping outside the dialog returns null: Kept the photo', (
+        tester,
+      ) async {
+        await open(tester, title);
+        await openDialog(tester);
+        // The barrier covers the whole screen; tap a corner, away from the
+        // dialog.
+        await tester.tapAt(const Offset(10, 300));
+        await tester.pumpAndSettle();
+        expectMessage('Kept the photo');
+      });
+
+      testWidgets('system back closes the dialog only: Kept the photo', (
+        tester,
+      ) async {
+        await open(tester, title);
+        await openDialog(tester);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expectMessage('Kept the photo');
+      });
+
+      for (final app in ['Email', 'Messages']) {
+        testWidgets('Share, then $app: Shared with $app', (tester) async {
+          await open(tester, title);
+          await openSheet(tester);
+          await tester.tap(
+            find.descendant(of: sheet, matching: find.text(app)),
+          );
+          await tester.pumpAndSettle();
+          expectMessage('Shared with $app');
+        });
+      }
+
+      testWidgets('dismissing the sheet leaves the text unchanged', (
+        tester,
+      ) async {
+        await open(tester, title);
+
+        // Swipe it down.
+        await openSheet(tester);
+        await tester.drag(sheet, const Offset(0, 400));
+        await tester.pumpAndSettle();
+        expectMessage('Nothing chosen yet');
+
+        // Tap the dimmed area above it.
+        await openSheet(tester);
+        await tester.tapAt(const Offset(400, 100));
+        await tester.pumpAndSettle();
+        expectMessage('Nothing chosen yet');
+
+        // System back.
+        await openSheet(tester);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expectMessage('Nothing chosen yet');
+
+        // After a choice, dismissing still leaves the last message.
+        await openSheet(tester);
+        await tester.tap(
+          find.descendant(of: sheet, matching: find.text('Email')),
+        );
+        await tester.pumpAndSettle();
+        await openSheet(tester);
+        await tester.drag(sheet, const Offset(0, 400));
+        await tester.pumpAndSettle();
+        expectMessage('Shared with Email');
+      });
+
+      testWidgets('info opens the notes; back returns to the list', (
+        tester,
+      ) async {
+        await open(tester, title);
+        await openDialog(tester);
+        await tester.tap(find.widgetWithText(TextButton, 'Delete'));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byTooltip('Lesson notes'));
+        await tester.pumpAndSettle();
+        expect(find.text('Lesson 29: $title'), findsOneWidget);
+        Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+        await tester.pumpAndSettle();
+        expectMessage('Photo deleted');
+
+        // Popups were popped on their own, so one back reaches the list.
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+        expect(find.widgetWithText(ListTile, title), findsOneWidget);
+
+        // System back from the lesson screen also returns to the list.
+        await tester.tap(find.widgetWithText(ListTile, title));
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Popups Tip'), findsOneWidget);
         await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
         expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
