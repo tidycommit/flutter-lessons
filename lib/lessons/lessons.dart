@@ -31,6 +31,7 @@ import '26_bottom_navigation_bar.dart';
 import '27_tabbar.dart';
 import '28_drawer.dart';
 import '29_dialogs_bottom_sheets.dart';
+import '30_popscope.dart';
 import 'lesson.dart';
 
 /// Every lesson, in the order shown on the home screen.
@@ -237,5 +238,12 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 10, 18),
     markdownPath: 'lessons/29-dialogs-bottom-sheets.md',
     builder: (_) => const Lesson29Popups(),
+  ),
+  Lesson(
+    id: 30,
+    title: 'PopScope for handling back',
+    date: DateTime(2026, 10, 19),
+    markdownPath: 'lessons/30-popscope.md',
+    builder: (_) => const Lesson30PopScope(),
   ),
 ];
