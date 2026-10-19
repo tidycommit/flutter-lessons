@@ -30,6 +30,7 @@ import '25_push_replacement.dart';
 import '26_bottom_navigation_bar.dart';
 import '27_tabbar.dart';
 import '28_drawer.dart';
+import '29_dialogs_bottom_sheets.dart';
 import 'lesson.dart';
 
 /// Every lesson, in the order shown on the home screen.
@@ -229,5 +230,12 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 10, 17),
     markdownPath: 'lessons/28-drawer.md',
     builder: (_) => const Lesson28Drawer(),
+  ),
+  Lesson(
+    id: 29,
+    title: 'showDialog and showModalBottomSheet as routes',
+    date: DateTime(2026, 10, 18),
+    markdownPath: 'lessons/29-dialogs-bottom-sheets.md',
+    builder: (_) => const Lesson29Popups(),
   ),
 ];
