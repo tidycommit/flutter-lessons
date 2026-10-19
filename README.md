@@ -35,7 +35,7 @@ small built-in renderer (`lib/widgets/simple_markdown.dart`).
 lessons/                    Lesson text, one markdown file per lesson
   01-hello-app.md
   ...
-  29-dialogs-bottom-sheets.md
+  30-popscope.md
 lib/
   main.dart                 MaterialApp and app theme
   lessons/
@@ -43,7 +43,7 @@ lib/
     lessons.dart            Central registry: the ordered list of all lessons
     01_hello_app.dart       Runnable example widget for each lesson
     ...
-    29_dialogs_bottom_sheets.dart
+    30_popscope.dart
   screens/
     home_screen.dart        ListView of lessons, Navigator.push to each one
     lesson_screen.dart      Route for one lesson (uses the lesson's own AppBar)
@@ -59,23 +59,23 @@ android/ ios/ web/          Platform runners from `flutter create`
 ## Adding a lesson
 
 A lesson is one markdown file, one Dart file and one registry entry, plus a
-line in the test table. For example, a lesson 30 on a Hero animation:
+line in the test table. For example, a lesson 31 on a Hero animation:
 
-1. **Text:** add `lessons/30-hero.md`. Start it with
-   `# Lesson 30: Hero animation` (the test checks for this heading),
+1. **Text:** add `lessons/31-hero.md`. Start it with
+   `# Lesson 31: Hero animation` (the test checks for this heading),
    then a `**Date:**` line, the explanation and the code in a fenced block.
    Everything in `lessons/` is bundled as an asset automatically.
-2. **Example:** add `lib/lessons/30_hero.dart` with a widget such
+2. **Example:** add `lib/lessons/31_hero.dart` with a widget such
    as `class HeroLesson extends StatelessWidget`. Follow the AppBar
    rule below.
 3. **Registry:** in `lib/lessons/lessons.dart`, import the file and add:
 
    ```dart
    Lesson(
-     id: 30,
+     id: 31,
      title: 'Hero animation',
-     date: DateTime(2026, 10, 19),
-     markdownPath: 'lessons/30-hero.md',
+     date: DateTime(2026, 10, 20),
+     markdownPath: 'lessons/31-hero.md',
      builder: (_) => const HeroLesson(),
    ),
    ```
@@ -124,6 +124,10 @@ Notes for upcoming navigation lessons:
 - `showDialog` and `showModalBottomSheet` push routes on top of the lesson
   screen (lesson 29). They pop on their own, so the lesson screen keeps its
   normal back arrow and needs no "Back to lessons" action.
+- A `PopScope` in a screen the lesson pushes (lesson 30) guards only that
+  route, as long as the screen is pushed on the same navigator as the lesson.
+  The AppBar back arrow and system back ask the top route first, so the
+  lesson list is never popped by mistake.
 - A lesson that needs a package (such as `go_router`) also needs a
   `flutter pub add` line in its markdown and a dependency in `pubspec.yaml`.
 
