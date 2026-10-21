@@ -32,6 +32,7 @@ import '27_tabbar.dart';
 import '28_drawer.dart';
 import '29_dialogs_bottom_sheets.dart';
 import '30_popscope.dart';
+import '32_theme_data.dart';
 import 'lesson.dart';
 
 /// Every lesson, in the order shown on the home screen.
@@ -245,5 +246,12 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 10, 19),
     markdownPath: 'lessons/30-popscope.md',
     builder: (_) => const Lesson30PopScope(),
+  ),
+  Lesson(
+    id: 32,
+    title: 'ThemeData as the source of truth',
+    date: DateTime(2026, 10, 21),
+    markdownPath: 'lessons/32-theme-data.md',
+    builder: (_) => const Lesson32ThemeData(),
   ),
 ];
