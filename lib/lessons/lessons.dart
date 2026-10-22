@@ -32,6 +32,7 @@ import '27_tabbar.dart';
 import '28_drawer.dart';
 import '29_dialogs_bottom_sheets.dart';
 import '30_popscope.dart';
+import '31_design_system_mindset.dart';
 import '32_theme_data.dart';
 import 'lesson.dart';
 
@@ -246,6 +247,13 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 10, 19),
     markdownPath: 'lessons/30-popscope.md',
     builder: (_) => const Lesson30PopScope(),
+  ),
+  Lesson(
+    id: 31,
+    title: 'Design-system mindset',
+    date: DateTime(2026, 10, 20),
+    markdownPath: 'lessons/31-design-system-mindset.md',
+    builder: (_) => const Lesson31DesignSystem(),
   ),
   Lesson(
     id: 32,

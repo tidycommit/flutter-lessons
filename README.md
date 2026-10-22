@@ -135,5 +135,11 @@ Notes for upcoming navigation lessons:
 - A lesson that needs a package (such as `go_router`) also needs a
   `flutter pub add` line in its markdown and a dependency in `pubspec.yaml`.
 
+Notes for the Phase 2 lessons (31 onward):
+
+- Lesson-local helpers that illustrate an idea, such as lesson 31's
+  `AppButton`, live in the lesson's own file. Nothing outside that file uses
+  them, so they don't need a lesson prefix.
+
 Lesson Dart files are named `NN_topic.dart` so they sort in order; the
 `file_names` lint is turned off in `analysis_options.yaml` for that reason.

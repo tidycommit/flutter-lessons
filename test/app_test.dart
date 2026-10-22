@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_lessons/lessons/lesson.dart';
+import 'package:flutter_lessons/lessons/31_design_system_mindset.dart';
 import 'package:flutter_lessons/lessons/lessons.dart';
 import 'package:flutter_lessons/main.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -38,6 +39,7 @@ const expectedAppBarTitles = <int, String>{
   28: 'Drawer Tip',
   29: 'Popups Tip',
   30: 'PopScope Tip',
+  31: 'Design system',
   32: 'ThemeData',
 };
 
@@ -105,11 +107,9 @@ void main() {
   }
 
   test('registry has unique ids, in order, with lesson asset paths', () {
-    // Lesson PRs are branched off main independently, so a branch may skip
-    // a number whose PR is still open; ids must still be unique and in order.
-    expect(lessons.length, greaterThanOrEqualTo(30));
+    expect(lessons, hasLength(32));
     for (var i = 0; i < lessons.length; i++) {
-      if (i > 0) expect(lessons[i].id, greaterThan(lessons[i - 1].id));
+      expect(lessons[i].id, i + 1);
       expect(lessons[i].date, isNotNull, reason: lessons[i].title);
       expect(
         lessons[i].markdownPath,
@@ -1357,6 +1357,147 @@ void main() {
         await tester.tap(find.widgetWithText(ListTile, title));
         await tester.pumpAndSettle();
         expectPopScopeTip();
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+      });
+    });
+
+    group('31 Design-system mindset', () {
+      const title = 'Design-system mindset';
+      final appButtons = find.byType(AppButton);
+
+      Future<void> scrollToButton(WidgetTester tester, Finder finder) async {
+        await tester.scrollUntilVisible(
+          finder,
+          100,
+          scrollable: find.byType(Scrollable).last,
+        );
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('is listed on the home screen', (tester) async {
+        await tester.pumpWidget(const FlutterLessonsApp());
+        await scrollTo(tester, find.text(title));
+        expect(find.text(title), findsOneWidget);
+        expect(find.text('Oct 20, 2026'), findsOneWidget);
+      });
+
+      testWidgets("opens on Design system with the snippet's AppBar", (
+        tester,
+      ) async {
+        await open(tester, title);
+        final appBar = tester.widget<AppBar>(find.byType(AppBar));
+        expect((appBar.title! as Text).data, 'Design system');
+        expect(appBar.backgroundColor, isNull);
+        expect(appBar.foregroundColor, isNull);
+        expect(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byTooltip('Lesson notes'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byType(BackButton),
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Presses: 0'), findsOneWidget);
+        expect(find.text('Inconsistent'), findsOneWidget);
+      });
+
+      testWidgets('Inconsistent: three hand-styled buttons that differ', (
+        tester,
+      ) async {
+        await open(tester, title);
+        final save = tester.widget<ElevatedButton>(
+          find.widgetWithText(ElevatedButton, 'Save').first,
+        );
+        expect(save.style?.backgroundColor?.resolve({}), Colors.orange);
+        expect(save.style?.foregroundColor?.resolve({}), Colors.white);
+        expect(find.widgetWithText(TextButton, 'SUBMIT'), findsOneWidget);
+        final cont = tester.widget<OutlinedButton>(
+          find.widgetWithText(OutlinedButton, 'Continue'),
+        );
+        expect(cont.style?.shape?.resolve({}), isA<StadiumBorder>());
+        expect(cont.style?.minimumSize?.resolve({}), const Size(240, 56));
+      });
+
+      testWidgets('Consistent: three AppButtons with one shared style', (
+        tester,
+      ) async {
+        await open(tester, title);
+        await scrollToButton(tester, find.text('Consistent'));
+        await scrollToButton(
+          tester,
+          find.widgetWithText(AppButton, 'Continue'),
+        );
+        expect(appButtons, findsNWidgets(3));
+        expect(tester.widgetList<AppButton>(appButtons).map((b) => b.label), [
+          'Save',
+          'Submit',
+          'Continue',
+        ]);
+        final sizes = <Size>[];
+        for (final element in appButtons.evaluate()) {
+          final button = tester.widget<ElevatedButton>(
+            find.descendant(
+              of: find.byWidget(element.widget),
+              matching: find.byType(ElevatedButton),
+            ),
+          );
+          expect(button.style?.minimumSize?.resolve({}), const Size(160, 48));
+          final shape = button.style?.shape?.resolve({});
+          expect(shape, isA<RoundedRectangleBorder>());
+          expect(
+            (shape! as RoundedRectangleBorder).borderRadius,
+            BorderRadius.circular(8),
+          );
+          sizes.add(tester.getSize(find.byWidget(element.widget)));
+        }
+        // All three share the height and at least the shared minimum width.
+        expect(sizes.map((s) => s.height).toSet(), {48});
+        expect(sizes.every((s) => s.width >= 160), isTrue);
+      });
+
+      testWidgets('every button counts a press', (tester) async {
+        await open(tester, title);
+        final buttons = [
+          find.widgetWithText(ElevatedButton, 'Save').first,
+          find.widgetWithText(TextButton, 'SUBMIT'),
+          find.widgetWithText(OutlinedButton, 'Continue'),
+          find.widgetWithText(AppButton, 'Save'),
+          find.widgetWithText(AppButton, 'Submit'),
+          find.widgetWithText(AppButton, 'Continue'),
+        ];
+        for (var i = 0; i < buttons.length; i++) {
+          await scrollToButton(tester, buttons[i]);
+          await tester.tap(buttons[i]);
+          await tester.pump();
+          await scrollToButton(tester, find.text('Presses: ${i + 1}'));
+          expect(find.text('Presses: ${i + 1}'), findsOneWidget);
+        }
+      });
+
+      testWidgets('info opens the notes; back returns to the list', (
+        tester,
+      ) async {
+        await open(tester, title);
+        await tester.tap(find.byTooltip('Lesson notes'));
+        await tester.pumpAndSettle();
+        expect(find.text('Lesson 31: $title'), findsOneWidget);
+        Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+        await tester.pumpAndSettle();
+
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+
+        await tester.tap(find.widgetWithText(ListTile, title));
+        await tester.pumpAndSettle();
         await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
         expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
