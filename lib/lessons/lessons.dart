@@ -33,6 +33,7 @@ import '28_drawer.dart';
 import '29_dialogs_bottom_sheets.dart';
 import '30_popscope.dart';
 import '31_design_system_mindset.dart';
+import '32_theme_data.dart';
 import 'lesson.dart';
 
 /// Every lesson, in the order shown on the home screen.
@@ -253,5 +254,12 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 10, 20),
     markdownPath: 'lessons/31-design-system-mindset.md',
     builder: (_) => const Lesson31DesignSystem(),
+  ),
+  Lesson(
+    id: 32,
+    title: 'ThemeData as the source of truth',
+    date: DateTime(2026, 10, 21),
+    markdownPath: 'lessons/32-theme-data.md',
+    builder: (_) => const Lesson32ThemeData(),
   ),
 ];

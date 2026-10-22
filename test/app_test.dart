@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// The AppBar title from each lesson's snippet, by lesson id. Titles for
 /// 01-10 were supplied by the teacher; 11-20 come from the original
-/// snippets; 21-31 from the lesson code.
+/// snippets; 21-32 from the lesson code.
 const expectedAppBarTitles = <int, String>{
   1: 'Hello',
   2: 'Counter',
@@ -40,6 +40,7 @@ const expectedAppBarTitles = <int, String>{
   29: 'Popups Tip',
   30: 'PopScope Tip',
   31: 'Design system',
+  32: 'ThemeData',
 };
 
 /// Lessons whose first screen has no back arrow (by design in 25; in 28 the
@@ -106,7 +107,7 @@ void main() {
   }
 
   test('registry has unique ids, in order, with lesson asset paths', () {
-    expect(lessons, hasLength(31));
+    expect(lessons, hasLength(32));
     for (var i = 0; i < lessons.length; i++) {
       expect(lessons[i].id, i + 1);
       expect(lessons[i].date, isNotNull, reason: lessons[i].title);
@@ -1497,6 +1498,162 @@ void main() {
 
         await tester.tap(find.widgetWithText(ListTile, title));
         await tester.pumpAndSettle();
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+      });
+    });
+
+    group('32 ThemeData', () {
+      const title = 'ThemeData as the source of truth';
+      final switchTile = find.widgetWithText(SwitchListTile, 'Dark mode');
+
+      ThemeData themeAt(WidgetTester tester, Finder finder) =>
+          Theme.of(tester.element(finder));
+
+      testWidgets('is listed on the home screen', (tester) async {
+        await tester.pumpWidget(const FlutterLessonsApp());
+        await scrollTo(tester, find.text(title));
+        expect(find.text(title), findsOneWidget);
+        expect(find.text('Oct 21, 2026'), findsOneWidget);
+      });
+
+      testWidgets("opens on ThemeData with the snippet's AppBar", (
+        tester,
+      ) async {
+        await open(tester, title);
+        final appBar = tester.widget<AppBar>(find.byType(AppBar));
+        expect((appBar.title! as Text).data, 'ThemeData');
+        expect(appBar.backgroundColor, isNull);
+        expect(appBar.foregroundColor, isNull);
+        expect(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byTooltip('Lesson notes'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byType(BackButton),
+          ),
+          findsOneWidget,
+        );
+        // The snippet's own MaterialApp is nested inside the app's.
+        expect(find.byType(MaterialApp), findsNWidgets(2));
+      });
+
+      testWidgets('starts light; the card shows every themed piece', (
+        tester,
+      ) async {
+        await open(tester, title);
+        expect(tester.widget<SwitchListTile>(switchTile).value, isFalse);
+        for (final text in [
+          'Order summary',
+          'Every color here comes from Theme.of(context).',
+          'Primary color',
+        ]) {
+          expect(
+            find.descendant(of: find.byType(Card), matching: find.text(text)),
+            findsOneWidget,
+          );
+        }
+        expect(find.widgetWithText(ElevatedButton, 'Checkout'), findsOneWidget);
+        final theme = themeAt(tester, find.text('Order summary'));
+        expect(theme.brightness, Brightness.light);
+        // "Primary color" reads the theme's primary, not a hardcoded color.
+        final label = tester.widget<Text>(find.text('Primary color'));
+        expect(label.style?.color, theme.colorScheme.primary);
+        expect(
+          tester.widget<Text>(find.text('Order summary')).style,
+          theme.textTheme.titleLarge,
+        );
+        await tester.tap(find.text('Checkout'));
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+      });
+
+      testWidgets('Dark mode restyles the whole demo, and back to light', (
+        tester,
+      ) async {
+        await open(tester, title);
+        final lightPrimary = themeAt(
+          tester,
+          find.text('Primary color'),
+        ).colorScheme.primary;
+
+        await tester.tap(switchTile);
+        await tester.pumpAndSettle();
+        expect(tester.widget<SwitchListTile>(switchTile).value, isTrue);
+        final dark = themeAt(tester, find.text('Order summary'));
+        expect(dark.brightness, Brightness.dark);
+        expect(
+          tester.widget<Text>(find.text('Primary color')).style?.color,
+          dark.colorScheme.primary,
+        );
+        expect(dark.colorScheme.primary, isNot(lightPrimary));
+        // The AppBar, Card and button read the same dark theme.
+        for (final finder in [
+          find.byType(AppBar),
+          find.byType(Card),
+          find.byType(ElevatedButton),
+        ]) {
+          expect(themeAt(tester, finder).brightness, Brightness.dark);
+        }
+
+        await tester.tap(switchTile);
+        await tester.pumpAndSettle();
+        expect(
+          themeAt(tester, find.text('Order summary')).brightness,
+          Brightness.light,
+        );
+      });
+
+      testWidgets('the back arrow returns to the lesson list', (tester) async {
+        await open(tester, title);
+        // Also after toggling dark mode: the arrow pops the outer route.
+        await tester.tap(switchTile);
+        await tester.pumpAndSettle();
+        await tester.tap(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byType(BackButton),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+        expect(find.widgetWithText(ListTile, title), findsOneWidget);
+        expect(find.byType(MaterialApp), findsOneWidget);
+        // The app's own theme is untouched by the lesson's switch.
+        expect(
+          themeAt(tester, find.text('Flutter Lessons')).brightness,
+          Brightness.light,
+        );
+      });
+
+      testWidgets('system back returns to the lesson list', (tester) async {
+        await open(tester, title);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+        expect(find.byType(MaterialApp), findsOneWidget);
+      });
+
+      testWidgets('notes open inside the demo; back closes them first', (
+        tester,
+      ) async {
+        await open(tester, title);
+        await tester.tap(find.byTooltip('Lesson notes'));
+        await tester.pumpAndSettle();
+        expect(find.text('Lesson 32: $title'), findsOneWidget);
+
+        // System back closes the notes sheet, not the lesson.
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.byType(BottomSheet), findsNothing);
+        expect(find.widgetWithText(AppBar, 'ThemeData'), findsOneWidget);
+
         await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
         expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
