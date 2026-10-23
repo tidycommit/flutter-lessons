@@ -2,23 +2,28 @@
 
 Daily Flutter lessons, each with a short explanation and a runnable example.
 
-This repo is one Flutter app. The home screen lists every lesson (number,
-title and date). Tapping a lesson opens its example screen; the info button in
-the AppBar opens the lesson text in a bottom sheet, so you can read the lesson
-right next to the running code. The same text lives in `lessons/` as plain
-markdown, readable on GitHub.
+Every lesson is its own small Flutter project under `lessons/`. Open a lesson
+folder and run it, and you get just that lesson's app: the snippet's own
+screen and AppBar, plus an info button in the AppBar that opens the lesson
+text in a bottom sheet, so you can read the lesson right next to the running
+code. The same text sits in the folder as plain markdown, readable on GitHub.
 
-## Run it
+## Run a lesson
 
 You need the Flutter SDK (developed with Flutter 3.47.5 / Dart 3.13).
 
 ```sh
-flutter pub get
-flutter run              # pick a connected device or emulator
+cd lessons/24-named-routes
 flutter run -d chrome    # run in the browser
+flutter run              # or pick a connected device or emulator
 ```
 
-Checks:
+`flutter run` fetches the packages on first use. The projects are set up for
+the web. To run one on a phone or emulator, add the mobile runners once in
+that folder with `flutter create --platforms android,ios .` (they are not
+committed).
+
+Inside one lesson:
 
 ```sh
 flutter analyze
@@ -26,122 +31,150 @@ flutter test
 flutter build web --release
 ```
 
-The app has no third-party runtime packages; the markdown is rendered by a
-small built-in renderer (`lib/widgets/simple_markdown.dart`).
+## Check every lesson
+
+```sh
+scripts/check.sh          # shared package and all lessons
+scripts/check.sh 07 34    # only lessons/07-* and lessons/34-*
+```
+
+The script runs `flutter pub get`, `flutter analyze` and `flutter test` in
+`packages/lesson_kit` and each lesson project, prints the test count for
+each, and exits non-zero if anything fails. The repo has no CI, so run it
+before pushing.
 
 ## Folder layout
 
 ```
-lessons/                    Lesson text, one markdown file per lesson
-  01-hello-app.md
+lessons/
+  01-hello-app/               One standalone Flutter project per lesson
+    01-hello-app.md           Lesson text (bundled as the notes asset)
+    pubspec.yaml              Only the packages this lesson needs
+    pubspec.lock
+    analysis_options.yaml
+    lib/main.dart             main(), the lesson info and the example code
+    test/lesson_test.dart     Tests for this lesson
+    web/                      Web runner from `flutter create`
   ...
-  34-button-variants.md
-lib/
-  main.dart                 MaterialApp and app theme
-  lessons/
-    lesson.dart             Lesson model (id, title, date, markdown path, builder)
-    lessons.dart            Central registry: the ordered list of all lessons
-    01_hello_app.dart       Runnable example widget for each lesson
-    ...
-    34_button_variants.dart
-  screens/
-    home_screen.dart        ListView of lessons, Navigator.push to each one
-    lesson_screen.dart      Route for one lesson (uses the lesson's own AppBar)
-  widgets/
-    lesson_info_button.dart Info action that opens a lesson's notes
-    lesson_notes.dart       Loads a lesson's markdown asset
-    simple_markdown.dart    Minimal markdown renderer
-test/
-  app_test.dart             Opens every lesson and its notes
-android/ ios/ web/          Platform runners from `flutter create`
+  34-button-variants/
+packages/
+  lesson_kit/                 Shared code, used as a path dependency
+    lib/src/lesson_info.dart        LessonInfo: id, title, notes asset
+    lib/src/lesson_app.dart         LessonApp (MaterialApp + theme) and LessonScope
+    lib/src/lesson_info_button.dart Info action that opens the lesson's notes
+    lib/src/lesson_notes.dart       Loads the notes asset into a bottom sheet
+    lib/src/simple_markdown.dart    Minimal markdown renderer
+scripts/
+  check.sh                    analyze + test across every project
 ```
+
+The lessons have no third-party runtime packages. A lesson that needs one
+(such as `go_router`) adds it to its own `pubspec.yaml` only.
 
 ## Adding a lesson
 
-A lesson is one markdown file, one Dart file and one registry entry, plus a
-line in the test table. For example, a lesson 35 on a Hero animation:
+Each daily lesson is a new folder. For example, a lesson 35 on a Hero
+animation, dated 2026-10-24:
 
-1. **Text:** add `lessons/35-hero.md`. Start it with
-   `# Lesson 35: Hero animation` (the test checks for this heading),
-   then a `**Date:**` line, the explanation and the code in a fenced block.
-   Everything in `lessons/` is bundled as an asset automatically.
-2. **Example:** add `lib/lessons/35_hero.dart` with a widget such
-   as `class HeroLesson extends StatelessWidget`. Follow the AppBar
-   rule below.
-3. **Registry:** in `lib/lessons/lessons.dart`, import the file and add:
+1. **Create the project** from the repo root:
+
+   ```sh
+   flutter create --empty --platforms web \
+     --project-name lesson_35_hero lessons/35-hero
+   cd lessons/35-hero
+   rm -rf README.md .idea *.iml
+   cp ../34-button-variants/analysis_options.yaml .
+   ```
+
+2. **pubspec.yaml:** set the description to `"Lesson 35: Hero animation"`,
+   then add the shared package and the notes asset:
+
+   ```yaml
+   dependencies:
+     flutter:
+       sdk: flutter
+     lesson_kit:
+       path: ../../packages/lesson_kit
+
+   flutter:
+     uses-material-design: true
+     assets:
+       - 35-hero.md
+   ```
+
+   Add any package the lesson needs here (`flutter pub add <name>`), and
+   mention that command in the lesson text.
+
+3. **Text:** add `35-hero.md`. Start it with `# Lesson 35: Hero animation`
+   (the test checks that this heading matches the lesson info), then a
+   `**Date:**` line, the explanation, the original snippet verbatim under
+   `## Code`, a `## How it is adapted in this app` note, and the final
+   `lib/main.dart` (after the imports) under `## Example`.
+
+4. **lib/main.dart:**
 
    ```dart
-   Lesson(
+   import 'package:flutter/material.dart';
+
+   import 'package:lesson_kit/lesson_kit.dart';
+
+   /// This lesson, as the info button and the notes heading see it.
+   const lesson = LessonInfo(
      id: 35,
      title: 'Hero animation',
-     date: DateTime(2026, 10, 24),
-     markdownPath: 'lessons/35-hero.md',
-     builder: (_) => const HeroLesson(),
-   ),
-   ```
-4. **Test table:** add the lesson's AppBar title to `expectedAppBarTitles`
-   in `test/app_test.dart`. The test fails if a lesson is missing from the
-   table.
+     notesAsset: '35-hero.md',
+   );
 
-The home screen, the notes sheet and the walkthrough test pick the rest up.
-Run `flutter analyze && flutter test` to confirm.
+   /// The whole lesson app; `main` runs it and the tests pump it.
+   const lessonApp = LessonApp(lesson: lesson, home: Lesson35Hero());
+
+   void main() => runApp(lessonApp);
+
+   class Lesson35Hero extends StatelessWidget {
+     const Lesson35Hero({super.key});
+
+     @override
+     Widget build(BuildContext context) {
+       return Scaffold(
+         appBar: AppBar(
+           title: const Text('Hero Tip'), // exactly as in the snippet
+           actions: const [LessonInfoButton(lessonId: 35)],
+         ),
+         body: const Placeholder(),
+       );
+     }
+   }
+   ```
+
+5. **test/lesson_test.dart:** copy it from a recent lesson and set
+   `expectedAppBarTitle` to the snippet's AppBar title. The shared tests check
+   the lesson info, the AppBar (title, default colors, info action, no back
+   arrow on the first screen), and that the notes open with the right
+   heading. Add tests for what the lesson teaches below them.
+
+6. In `web/index.html` and `web/manifest.json`, set the title to
+   `Lesson 35`.
+
+7. Run `flutter analyze && flutter test` in the folder (or
+   `scripts/check.sh 35`), then `flutter run -d chrome` to try it.
 
 ### The AppBar rule
 
-Each lesson's screen uses its snippet's own AppBar, with the info action
-added. There is no shared AppBar around the examples.
+Each lesson uses its snippet's own AppBar, with the info action added.
 
-- The example widget returns the snippet's `Scaffold` with the AppBar exactly
+- The first screen returns the snippet's `Scaffold` with the AppBar exactly
   as written: the same title text and any styling such as `backgroundColor`
   or `foregroundColor`. The only addition is
   `actions: const [LessonInfoButton(lessonId: NN)]`.
-- That Scaffold is the pushed route, so the AppBar shows the back arrow to
-  the lesson list automatically. Don't set `automaticallyImplyLeading: false`.
-- In the markdown, keep the original snippet verbatim under `## Code`, add a
-  `## How it is adapted in this app` note (no `main()`/`runApp()`, class
-  name, info action, `const` for the analyzer), and end with the in-app code
-  under `## Example`.
-- If a snippet has no AppBar, don't invent a title. Ask the teacher for one,
-  because every lesson needs an entry in the test table.
-- Screens the lesson pushes itself, like a details screen, keep the AppBar
-  from the snippet. They don't need the info action.
-
-Notes for upcoming navigation lessons:
-
-- An example widget runs inside a normal route, so it can call
-  `Navigator.push` / `Navigator.pop` itself and pass data through constructor
-  arguments or the value returned by `pop`.
-- Named routes, tabs (`DefaultTabController`), drawers or `go_router` can be
-  shown self-contained: the example can return its own `Scaffold`, a nested
-  `Navigator`, or its own `MaterialApp` / `MaterialApp.router`. That keeps
-  the lesson's routing separate from the app's own navigation. Keep the
-  AppBar rule: the first screen's AppBar carries the info action and a way
-  back to the lesson list.
-- A Scaffold with a `drawer:` puts the hamburger icon in the AppBar's
-  `leading` slot, where the back arrow would be. Keep the snippet's AppBar
-  and add a "Back to lessons" action before the info action (lessons 25 and
-  28), and add the lesson id to `lessonsWithoutBackArrow` in the tests.
-- `showDialog` and `showModalBottomSheet` push routes on top of the lesson
-  screen (lesson 29). They pop on their own, so the lesson screen keeps its
-  normal back arrow and needs no "Back to lessons" action.
-- A `PopScope` in a screen the lesson pushes (lesson 30) guards only that
-  route, as long as the screen is pushed on the same navigator as the lesson.
-  The AppBar back arrow and system back ask the top route first, so the
-  lesson list is never popped by mistake.
-- A snippet with its own `MaterialApp` (lesson 32) can keep it nested in the
-  lesson. It brings its own `Navigator`, so the first screen has no implied
-  back arrow; give the AppBar `leading: BackButton(...)` that pops with
-  `Navigator.of(context, rootNavigator: true)`, as lesson 24 does.
-- A lesson that needs a package (such as `go_router`) also needs a
-  `flutter pub add` line in its markdown and a dependency in `pubspec.yaml`.
-
-Notes for the Phase 2 lessons (31 onward):
-
+- The first screen is the app's home, so it has no back arrow, as in the
+  snippet. Screens the lesson pushes itself keep their snippet AppBar and
+  its back arrow; they don't need the info action.
+- If a snippet has no AppBar, don't invent a title. Ask the teacher for one.
+- If the snippet's own `MaterialApp` is the lesson (named routes in lesson
+  24, `ThemeData` in lesson 32, `MaterialApp.router` for `go_router`), keep
+  it, and wrap it in `LessonScope(lesson: lesson, child: ...)` instead of
+  using `LessonApp`, so the info button can still find the notes.
 - Lesson-local helpers that illustrate an idea, such as lesson 31's
-  `AppButton` or lesson 33's `AppTokens`, live in the lesson's own file. Nothing outside that file uses
-  them, so they don't need a lesson prefix. Two lessons may even use the
-  same name (lessons 31 and 34 both have an `AppButton`), as long as no
-  file imports both; a test that needs both imports one with a prefix.
-
-Lesson Dart files are named `NN_topic.dart` so they sort in order; the
-`file_names` lint is turned off in `analysis_options.yaml` for that reason.
+  `AppButton` or lesson 33's `AppTokens`, live in the lesson's own
+  `main.dart`. Since every lesson is its own project, two lessons can use the
+  same name.

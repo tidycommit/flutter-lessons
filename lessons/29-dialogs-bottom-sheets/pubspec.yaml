@@ -1,0 +1,23 @@
+name: lesson_29_dialogs_bottom_sheets
+description: "Lesson 29: showDialog and showModalBottomSheet as routes"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  lesson_kit:
+    path: ../../packages/lesson_kit
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - 29-dialogs-bottom-sheets.md

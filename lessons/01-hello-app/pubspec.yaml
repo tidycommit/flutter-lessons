@@ -1,0 +1,23 @@
+name: lesson_01_hello_app
+description: "Lesson 01: Hello app"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  lesson_kit:
+    path: ../../packages/lesson_kit
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - 01-hello-app.md
