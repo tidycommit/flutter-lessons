@@ -1,0 +1,23 @@
+name: lesson_04_column_row
+description: "Lesson 04: Column and Row alignment"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  lesson_kit:
+    path: ../../packages/lesson_kit
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - 04-column-row.md

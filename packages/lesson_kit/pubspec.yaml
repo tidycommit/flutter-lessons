@@ -1,0 +1,16 @@
+name: lesson_kit
+description: "Shared pieces for the lesson projects: LessonApp, LessonInfoButton and the notes sheet."
+publish_to: 'none'
+version: 1.0.0
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

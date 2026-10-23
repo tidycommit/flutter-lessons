@@ -27,7 +27,7 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
+build/
 /coverage/
 
 # Symbolication / obfuscation
@@ -38,3 +38,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# The shared package is a library; its lock file is not committed.
+packages/*/pubspec.lock
