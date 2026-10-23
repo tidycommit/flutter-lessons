@@ -35,6 +35,7 @@ import '30_popscope.dart';
 import '31_design_system_mindset.dart';
 import '32_theme_data.dart';
 import '33_design_tokens.dart';
+import '34_button_variants.dart';
 import 'lesson.dart';
 
 /// Every lesson, in the order shown on the home screen.
@@ -269,5 +270,12 @@ final List<Lesson> lessons = [
     date: DateTime(2026, 10, 22),
     markdownPath: 'lessons/33-design-tokens.md',
     builder: (_) => const Lesson33Tokens(),
+  ),
+  Lesson(
+    id: 34,
+    title: 'Shared button with variants',
+    date: DateTime(2026, 10, 23),
+    markdownPath: 'lessons/34-button-variants.md',
+    builder: (_) => const Lesson34ButtonVariants(),
   ),
 ];
