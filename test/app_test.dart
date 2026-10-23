@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_lessons/lessons/lesson.dart';
 import 'package:flutter_lessons/lessons/31_design_system_mindset.dart';
+import 'package:flutter_lessons/lessons/33_design_tokens.dart';
 import 'package:flutter_lessons/lessons/34_button_variants.dart' as l34;
 import 'package:flutter_lessons/lessons/lessons.dart';
 import 'package:flutter_lessons/main.dart';
@@ -42,6 +43,7 @@ const expectedAppBarTitles = <int, String>{
   30: 'PopScope Tip',
   31: 'Design system',
   32: 'ThemeData',
+  33: 'Tokens',
   34: 'AppButton',
 };
 
@@ -109,12 +111,9 @@ void main() {
   }
 
   test('registry has unique ids, in order, with lesson asset paths', () {
-    // Lesson PRs are branched off main independently, so a branch may skip
-    // a number whose PR is still open (33 here); ids must still be unique
-    // and in order. Restore the strict 1..N check once the gap is merged.
-    expect(lessons.length, greaterThanOrEqualTo(33));
+    expect(lessons, hasLength(34));
     for (var i = 0; i < lessons.length; i++) {
-      if (i > 0) expect(lessons[i].id, greaterThan(lessons[i - 1].id));
+      expect(lessons[i].id, i + 1);
       expect(lessons[i].date, isNotNull, reason: lessons[i].title);
       expect(
         lessons[i].markdownPath,
@@ -1659,6 +1658,159 @@ void main() {
         expect(find.byType(BottomSheet), findsNothing);
         expect(find.widgetWithText(AppBar, 'ThemeData'), findsOneWidget);
 
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+      });
+    });
+
+    group('33 Design tokens', () {
+      const title = 'Design tokens instead of magic numbers';
+      final brandCard = find.ancestor(
+        of: find.text('Brand card'),
+        matching: find.byType(Container),
+      );
+      final outlinedCard = find.ancestor(
+        of: find.text('Same tokens, outlined'),
+        matching: find.byType(Container),
+      );
+      final button = find.byType(FilledButton);
+
+      BoxDecoration decoration(WidgetTester tester, Finder card) =>
+          tester.widget<Container>(card.first).decoration! as BoxDecoration;
+
+      void expectBrand(WidgetTester tester, Color brand) {
+        final filled = decoration(tester, brandCard);
+        expect(filled.color, brand);
+        expect(filled.borderRadius, BorderRadius.circular(AppTokens.radiusMd));
+        final outlined = decoration(tester, outlinedCard);
+        expect(outlined.color, isNull);
+        expect((outlined.border! as Border).top.color, brand);
+        expect((outlined.border! as Border).top.width, 2);
+        expect(
+          outlined.borderRadius,
+          BorderRadius.circular(AppTokens.radiusMd),
+        );
+        expect(
+          tester.widget<Text>(find.text('Same tokens, outlined')).style?.color,
+          brand,
+        );
+        expect(
+          tester
+              .widget<FilledButton>(button)
+              .style
+              ?.backgroundColor
+              ?.resolve({}),
+          brand,
+        );
+      }
+
+      testWidgets('is listed on the home screen', (tester) async {
+        await tester.pumpWidget(const FlutterLessonsApp());
+        await scrollTo(tester, find.text(title));
+        expect(find.text(title), findsOneWidget);
+        expect(find.text('Oct 22, 2026'), findsOneWidget);
+      });
+
+      testWidgets("opens on Tokens with the snippet's AppBar", (tester) async {
+        await open(tester, title);
+        final appBar = tester.widget<AppBar>(find.byType(AppBar));
+        expect((appBar.title! as Text).data, 'Tokens');
+        expect(appBar.backgroundColor, isNull);
+        expect(appBar.foregroundColor, isNull);
+        expect(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byTooltip('Lesson notes'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byType(BackButton),
+          ),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets('the tokens have the documented values', (tester) async {
+        expect(AppTokens.spaceSm, 8);
+        expect(AppTokens.spaceMd, 16);
+        expect(AppTokens.spaceLg, 24);
+        expect(AppTokens.radiusMd, 12);
+        expect(AppTokens.colorBrand, const Color(0xFF0B5FFF));
+        expect(AppTokens.colorBrandStrong, const Color(0xFF0033AA));
+      });
+
+      testWidgets('the layout is built from the tokens', (tester) async {
+        await open(tester, title);
+        expect(find.text('Brand card'), findsOneWidget);
+        expect(find.text('Same tokens, outlined'), findsOneWidget);
+        expect(find.text('Spacing: 8 / 16 / 24, radius: 12'), findsOneWidget);
+        expect(
+          find.widgetWithText(FilledButton, 'Emphasize brand'),
+          findsOneWidget,
+        );
+        // 24 px around everything, 16 px inside each card.
+        final outer = find.ancestor(
+          of: find.byType(Column).last,
+          matching: find.byType(Padding),
+        );
+        expect(
+          tester.widget<Padding>(outer.first).padding,
+          const EdgeInsets.all(AppTokens.spaceLg),
+        );
+        for (final card in [brandCard, outlinedCard]) {
+          expect(
+            tester.widget<Container>(card.first).padding,
+            const EdgeInsets.all(AppTokens.spaceMd),
+          );
+        }
+        final brandText = tester.widget<Text>(find.text('Brand card'));
+        expect(brandText.style?.color, Colors.white);
+        expect(brandText.style?.fontSize, 20);
+        // Both cards stretch to the same width.
+        expect(
+          tester.getSize(brandCard.first).width,
+          tester.getSize(outlinedCard.first).width,
+        );
+        expectBrand(tester, AppTokens.colorBrand);
+      });
+
+      testWidgets('Emphasize brand restyles everything at once, and back', (
+        tester,
+      ) async {
+        await open(tester, title);
+        await tester.tap(find.text('Emphasize brand'));
+        await tester.pumpAndSettle();
+        expect(find.text('Use normal brand'), findsOneWidget);
+        expect(find.text('Emphasize brand'), findsNothing);
+        expectBrand(tester, AppTokens.colorBrandStrong);
+
+        await tester.tap(find.text('Use normal brand'));
+        await tester.pumpAndSettle();
+        expect(find.text('Emphasize brand'), findsOneWidget);
+        expectBrand(tester, AppTokens.colorBrand);
+      });
+
+      testWidgets('info opens the notes; back returns to the list', (
+        tester,
+      ) async {
+        await open(tester, title);
+        await tester.tap(find.byTooltip('Lesson notes'));
+        await tester.pumpAndSettle();
+        expect(find.text('Lesson 33: $title'), findsOneWidget);
+        Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+        await tester.pumpAndSettle();
+
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+        expect(find.widgetWithText(ListTile, title), findsOneWidget);
+
+        await tester.tap(find.widgetWithText(ListTile, title));
+        await tester.pumpAndSettle();
         await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
         expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);

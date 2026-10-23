@@ -138,7 +138,7 @@ Notes for upcoming navigation lessons:
 Notes for the Phase 2 lessons (31 onward):
 
 - Lesson-local helpers that illustrate an idea, such as lesson 31's
-  `AppButton`, live in the lesson's own file. Nothing outside that file uses
+  `AppButton` or lesson 33's `AppTokens`, live in the lesson's own file. Nothing outside that file uses
   them, so they don't need a lesson prefix. Two lessons may even use the
   same name (lessons 31 and 34 both have an `AppButton`), as long as no
   file imports both; a test that needs both imports one with a prefix.
