@@ -35,7 +35,7 @@ small built-in renderer (`lib/widgets/simple_markdown.dart`).
 lessons/                    Lesson text, one markdown file per lesson
   01-hello-app.md
   ...
-  32-theme-data.md
+  34-button-variants.md
 lib/
   main.dart                 MaterialApp and app theme
   lessons/
@@ -43,7 +43,7 @@ lib/
     lessons.dart            Central registry: the ordered list of all lessons
     01_hello_app.dart       Runnable example widget for each lesson
     ...
-    32_theme_data.dart
+    34_button_variants.dart
   screens/
     home_screen.dart        ListView of lessons, Navigator.push to each one
     lesson_screen.dart      Route for one lesson (uses the lesson's own AppBar)
@@ -59,23 +59,23 @@ android/ ios/ web/          Platform runners from `flutter create`
 ## Adding a lesson
 
 A lesson is one markdown file, one Dart file and one registry entry, plus a
-line in the test table. For example, a lesson 33 on a Hero animation:
+line in the test table. For example, a lesson 35 on a Hero animation:
 
-1. **Text:** add `lessons/33-hero.md`. Start it with
-   `# Lesson 33: Hero animation` (the test checks for this heading),
+1. **Text:** add `lessons/35-hero.md`. Start it with
+   `# Lesson 35: Hero animation` (the test checks for this heading),
    then a `**Date:**` line, the explanation and the code in a fenced block.
    Everything in `lessons/` is bundled as an asset automatically.
-2. **Example:** add `lib/lessons/33_hero.dart` with a widget such
+2. **Example:** add `lib/lessons/35_hero.dart` with a widget such
    as `class HeroLesson extends StatelessWidget`. Follow the AppBar
    rule below.
 3. **Registry:** in `lib/lessons/lessons.dart`, import the file and add:
 
    ```dart
    Lesson(
-     id: 33,
+     id: 35,
      title: 'Hero animation',
-     date: DateTime(2026, 10, 22),
-     markdownPath: 'lessons/33-hero.md',
+     date: DateTime(2026, 10, 24),
+     markdownPath: 'lessons/35-hero.md',
      builder: (_) => const HeroLesson(),
    ),
    ```
@@ -139,7 +139,9 @@ Notes for the Phase 2 lessons (31 onward):
 
 - Lesson-local helpers that illustrate an idea, such as lesson 31's
   `AppButton`, live in the lesson's own file. Nothing outside that file uses
-  them, so they don't need a lesson prefix.
+  them, so they don't need a lesson prefix. Two lessons may even use the
+  same name (lessons 31 and 34 both have an `AppButton`), as long as no
+  file imports both; a test that needs both imports one with a prefix.
 
 Lesson Dart files are named `NN_topic.dart` so they sort in order; the
 `file_names` lint is turned off in `analysis_options.yaml` for that reason.

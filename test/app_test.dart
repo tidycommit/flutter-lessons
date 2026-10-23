@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_lessons/lessons/lesson.dart';
 import 'package:flutter_lessons/lessons/31_design_system_mindset.dart';
+import 'package:flutter_lessons/lessons/34_button_variants.dart' as l34;
 import 'package:flutter_lessons/lessons/lessons.dart';
 import 'package:flutter_lessons/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// The AppBar title from each lesson's snippet, by lesson id. Titles for
 /// 01-10 were supplied by the teacher; 11-20 come from the original
-/// snippets; 21-32 from the lesson code.
+/// snippets; 21-34 from the lesson code.
 const expectedAppBarTitles = <int, String>{
   1: 'Hello',
   2: 'Counter',
@@ -41,6 +42,7 @@ const expectedAppBarTitles = <int, String>{
   30: 'PopScope Tip',
   31: 'Design system',
   32: 'ThemeData',
+  34: 'AppButton',
 };
 
 /// Lessons whose first screen has no back arrow (by design in 25; in 28 the
@@ -107,9 +109,12 @@ void main() {
   }
 
   test('registry has unique ids, in order, with lesson asset paths', () {
-    expect(lessons, hasLength(32));
+    // Lesson PRs are branched off main independently, so a branch may skip
+    // a number whose PR is still open (33 here); ids must still be unique
+    // and in order. Restore the strict 1..N check once the gap is merged.
+    expect(lessons.length, greaterThanOrEqualTo(33));
     for (var i = 0; i < lessons.length; i++) {
-      expect(lessons[i].id, i + 1);
+      if (i > 0) expect(lessons[i].id, greaterThan(lessons[i - 1].id));
       expect(lessons[i].date, isNotNull, reason: lessons[i].title);
       expect(
         lessons[i].markdownPath,
@@ -1654,6 +1659,185 @@ void main() {
         expect(find.byType(BottomSheet), findsNothing);
         expect(find.widgetWithText(AppBar, 'ThemeData'), findsOneWidget);
 
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+      });
+    });
+
+    group('34 Button variants', () {
+      const title = 'Shared button with variants';
+      final appButtons = find.byType(l34.AppButton);
+
+      Finder button(String label) => find.ancestor(
+        of: find.text(label),
+        matching: find.byType(FilledButton),
+      );
+
+      ButtonStyle styleOf(WidgetTester tester, String label) =>
+          tester.widget<FilledButton>(button(label)).style!;
+
+      testWidgets('is listed on the home screen', (tester) async {
+        await tester.pumpWidget(const FlutterLessonsApp());
+        await scrollTo(tester, find.text(title));
+        expect(find.text(title), findsOneWidget);
+        expect(find.text('Oct 23, 2026'), findsOneWidget);
+      });
+
+      testWidgets("opens on AppButton with the snippet's AppBar", (
+        tester,
+      ) async {
+        await open(tester, title);
+        final appBar = tester.widget<AppBar>(find.byType(AppBar));
+        expect((appBar.title! as Text).data, 'AppButton');
+        expect(appBar.backgroundColor, isNull);
+        expect(appBar.foregroundColor, isNull);
+        expect(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byTooltip('Lesson notes'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: find.byType(AppBar),
+            matching: find.byType(BackButton),
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Presses: 0'), findsOneWidget);
+      });
+
+      testWidgets('four AppButtons, one widget type, picked by variant', (
+        tester,
+      ) async {
+        await open(tester, title);
+        expect(appButtons, findsNWidgets(4));
+        final buttons = tester.widgetList<l34.AppButton>(appButtons).toList();
+        expect(buttons.map((b) => b.label), [
+          'Save',
+          'Cancel',
+          'Delete',
+          'Disabled',
+        ]);
+        expect(buttons.map((b) => b.variant), [
+          l34.AppButtonVariant.primary,
+          l34.AppButtonVariant.secondary,
+          l34.AppButtonVariant.danger,
+          l34.AppButtonVariant.primary,
+        ]);
+        // Optional icon: Save and Delete have one, Cancel and Disabled don't.
+        expect(buttons.map((b) => b.icon), [
+          Icons.check,
+          null,
+          Icons.delete,
+          null,
+        ]);
+        expect(
+          find.descendant(
+            of: button('Save'),
+            matching: find.byIcon(Icons.check),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: button('Delete'),
+            matching: find.byIcon(Icons.delete),
+          ),
+          findsOneWidget,
+        );
+        for (final label in ['Cancel', 'Disabled']) {
+          expect(
+            find.descendant(of: button(label), matching: find.byType(Icon)),
+            findsNothing,
+          );
+        }
+        // Same size for every variant.
+        final sizes = [
+          for (final label in ['Save', 'Cancel', 'Delete', 'Disabled'])
+            tester.getSize(button(label)),
+        ];
+        expect(sizes.toSet(), hasLength(1));
+        expect(sizes.first.width, greaterThanOrEqualTo(220));
+        expect(sizes.first.height, greaterThanOrEqualTo(48));
+      });
+
+      testWidgets('the switch maps each variant to its scheme colors', (
+        tester,
+      ) async {
+        await open(tester, title);
+        final scheme = Theme.of(tester.element(button('Save'))).colorScheme;
+        final expected = {
+          'Save': (scheme.primary, scheme.onPrimary),
+          'Cancel': (scheme.secondaryContainer, scheme.onSecondaryContainer),
+          'Delete': (scheme.error, scheme.onError),
+        };
+        for (final MapEntry(key: label, value: (bg, fg)) in expected.entries) {
+          final style = styleOf(tester, label);
+          expect(style.backgroundColor?.resolve({}), bg, reason: label);
+          expect(style.foregroundColor?.resolve({}), fg, reason: label);
+          expect(style.minimumSize?.resolve({}), const Size(220, 48));
+        }
+        // The three enabled variants really look different.
+        expect(expected.values.map((c) => c.$1).toSet(), hasLength(3));
+      });
+
+      testWidgets('Disabled is greyed out and untappable', (tester) async {
+        await open(tester, title);
+        final disabled = tester.widget<FilledButton>(button('Disabled'));
+        expect(disabled.onPressed, isNull);
+        expect(disabled.enabled, isFalse);
+        final style = styleOf(tester, 'Disabled');
+        final scheme = Theme.of(tester.element(button('Save'))).colorScheme;
+        expect(
+          style.backgroundColor?.resolve({WidgetState.disabled}),
+          isNot(scheme.primary),
+        );
+        await tester.tap(button('Disabled'), warnIfMissed: false);
+        await tester.pump();
+        expect(find.text('Presses: 0'), findsOneWidget);
+      });
+
+      testWidgets('Save counts; Cancel and Delete do nothing', (tester) async {
+        await open(tester, title);
+        await tester.tap(button('Save'));
+        await tester.pump();
+        expect(find.text('Presses: 1'), findsOneWidget);
+        await tester.tap(button('Save'));
+        await tester.pump();
+        expect(find.text('Presses: 2'), findsOneWidget);
+
+        for (final label in ['Cancel', 'Delete']) {
+          expect(tester.widget<FilledButton>(button(label)).enabled, isTrue);
+          await tester.tap(button(label));
+          await tester.pumpAndSettle();
+          expect(find.text('Presses: 2'), findsOneWidget);
+          expect(tester.takeException(), isNull);
+        }
+      });
+
+      testWidgets('info opens the notes; back returns to the list', (
+        tester,
+      ) async {
+        await open(tester, title);
+        await tester.tap(find.byTooltip('Lesson notes'));
+        await tester.pumpAndSettle();
+        expect(
+          find.text('Lesson 34: Shared button with variants'),
+          findsOneWidget,
+        );
+        Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+        await tester.pumpAndSettle();
+
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
+        expect(find.widgetWithText(ListTile, title), findsOneWidget);
+
+        await tester.tap(find.widgetWithText(ListTile, title));
+        await tester.pumpAndSettle();
         await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
         expect(find.widgetWithText(AppBar, 'Flutter Lessons'), findsOneWidget);
