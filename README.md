@@ -56,7 +56,7 @@ lessons/
     test/lesson_test.dart     Tests for this lesson
     web/                      Web runner from `flutter create`
   ...
-  34-button-variants/
+  35-text-field-masks/
 packages/
   lesson_kit/                 Shared code, used as a path dependency
     lib/src/lesson_info.dart        LessonInfo: id, title, notes asset
@@ -73,20 +73,20 @@ The lessons have no third-party runtime packages. A lesson that needs one
 
 ## Adding a lesson
 
-Each daily lesson is a new folder. For example, a lesson 35 on a Hero
-animation, dated 2026-10-24:
+Each daily lesson is a new folder. For example, a lesson 36 on a Hero
+animation, dated 2026-10-25:
 
 1. **Create the project** from the repo root:
 
    ```sh
    flutter create --empty --platforms web \
-     --project-name lesson_35_hero lessons/35-hero
-   cd lessons/35-hero
+     --project-name lesson_36_hero lessons/36-hero
+   cd lessons/36-hero
    rm -rf README.md .idea *.iml
-   cp ../34-button-variants/analysis_options.yaml .
+   cp ../35-text-field-masks/analysis_options.yaml .
    ```
 
-2. **pubspec.yaml:** set the description to `"Lesson 35: Hero animation"`,
+2. **pubspec.yaml:** set the description to `"Lesson 36: Hero animation"`,
    then add the shared package and the notes asset:
 
    ```yaml
@@ -99,13 +99,13 @@ animation, dated 2026-10-24:
    flutter:
      uses-material-design: true
      assets:
-       - 35-hero.md
+       - 36-hero.md
    ```
 
    Add any package the lesson needs here (`flutter pub add <name>`), and
    mention that command in the lesson text.
 
-3. **Text:** add `35-hero.md`. Start it with `# Lesson 35: Hero animation`
+3. **Text:** add `36-hero.md`. Start it with `# Lesson 36: Hero animation`
    (the test checks that this heading matches the lesson info), then a
    `**Date:**` line, the explanation, the original snippet verbatim under
    `## Code`, a `## How it is adapted in this app` note, and the final
@@ -120,25 +120,25 @@ animation, dated 2026-10-24:
 
    /// This lesson, as the info button and the notes heading see it.
    const lesson = LessonInfo(
-     id: 35,
+     id: 36,
      title: 'Hero animation',
-     notesAsset: '35-hero.md',
+     notesAsset: '36-hero.md',
    );
 
    /// The whole lesson app; `main` runs it and the tests pump it.
-   const lessonApp = LessonApp(lesson: lesson, home: Lesson35Hero());
+   const lessonApp = LessonApp(lesson: lesson, home: Lesson36Hero());
 
    void main() => runApp(lessonApp);
 
-   class Lesson35Hero extends StatelessWidget {
-     const Lesson35Hero({super.key});
+   class Lesson36Hero extends StatelessWidget {
+     const Lesson36Hero({super.key});
 
      @override
      Widget build(BuildContext context) {
        return Scaffold(
          appBar: AppBar(
            title: const Text('Hero Tip'), // exactly as in the snippet
-           actions: const [LessonInfoButton(lessonId: 35)],
+           actions: const [LessonInfoButton(lessonId: 36)],
          ),
          body: const Placeholder(),
        );
@@ -153,10 +153,10 @@ animation, dated 2026-10-24:
    heading. Add tests for what the lesson teaches below them.
 
 6. In `web/index.html` and `web/manifest.json`, set the title to
-   `Lesson 35`.
+   `Lesson 36`.
 
 7. Run `flutter analyze && flutter test` in the folder (or
-   `scripts/check.sh 35`), then `flutter run -d chrome` to try it.
+   `scripts/check.sh 36`), then `flutter run -d chrome` to try it.
 
 ### The AppBar rule
 
@@ -175,6 +175,6 @@ Each lesson uses its snippet's own AppBar, with the info action added.
   it, and wrap it in `LessonScope(lesson: lesson, child: ...)` instead of
   using `LessonApp`, so the info button can still find the notes.
 - Lesson-local helpers that illustrate an idea, such as lesson 31's
-  `AppButton` or lesson 33's `AppTokens`, live in the lesson's own
-  `main.dart`. Since every lesson is its own project, two lessons can use the
+  `AppButton`, lesson 33's `AppTokens` or lesson 35's `AppTextField` and
+  `PhoneNumberFormatter`, live in the lesson's own `main.dart`. Since every lesson is its own project, two lessons can use the
   same name.
