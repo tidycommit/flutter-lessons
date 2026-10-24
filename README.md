@@ -38,10 +38,25 @@ scripts/check.sh          # shared package and all lessons
 scripts/check.sh 07 34    # only lessons/07-* and lessons/34-*
 ```
 
-The script runs `flutter pub get`, `flutter analyze` and `flutter test` in
-`packages/lesson_kit` and each lesson project, prints the test count for
-each, and exits non-zero if anything fails. The repo has no CI, so run it
-before pushing.
+On Windows, use the PowerShell version. It works in Windows PowerShell 5.1
+and PowerShell 7 (`pwsh`, also on macOS and Linux):
+
+```powershell
+.\scripts\check.ps1          # shared package and all lessons
+.\scripts\check.ps1 07 34    # only lessons/07-* and lessons/34-*
+```
+
+If the execution policy blocks local scripts, run it like this instead:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/check.ps1
+powershell -ExecutionPolicy Bypass -File scripts/check.ps1 07 34
+```
+
+Both scripts run `flutter pub get`, `flutter analyze` and `flutter test` in
+`packages/lesson_kit` and each lesson project, and print the test count for
+each. They exit non-zero if anything fails, including a lesson number that
+matches no folder. The repo has no CI, so run one before pushing.
 
 ## Folder layout
 
