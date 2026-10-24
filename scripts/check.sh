@@ -12,16 +12,23 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root"
 
 projects=()
+failed=()
 if [ "$#" -eq 0 ]; then
   projects+=(packages/lesson_kit)
   for dir in lessons/*/; do projects+=("${dir%/}"); done
 else
   for n in "$@"; do
-    for dir in lessons/"$n"-*/; do [ -d "$dir" ] && projects+=("${dir%/}"); done
+    found=0
+    for dir in lessons/"$n"-*/; do
+      [ -d "$dir" ] && projects+=("${dir%/}") && found=1
+    done
+    if [ "$found" -eq 0 ]; then
+      printf 'WARNING: No lesson folder matches lessons/%s-*\n' "$n" >&2
+      failed+=("lessons/$n-* (no such lesson)")
+    fi
   done
 fi
 
-failed=()
 total=0
 for project in "${projects[@]}"; do
   printf '== %s\n' "$project"
