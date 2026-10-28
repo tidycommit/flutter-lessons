@@ -71,7 +71,7 @@ lessons/
     test/lesson_test.dart     Tests for this lesson
     web/                      Web runner from `flutter create`
   ...
-  36-alert-vs-toast/
+  39-breakpoints/
 packages/
   lesson_kit/                 Shared code, used as a path dependency
     lib/src/lesson_info.dart        LessonInfo: id, title, notes asset
@@ -88,20 +88,20 @@ The lessons have no third-party runtime packages. A lesson that needs one
 
 ## Adding a lesson
 
-Each daily lesson is a new folder. For example, a lesson 37 on a Hero
-animation, dated 2026-10-26:
+Each daily lesson is a new folder. For example, a lesson 40 on a Hero
+animation, dated 2026-10-29:
 
 1. **Create the project** from the repo root:
 
    ```sh
    flutter create --empty --platforms web \
-     --project-name lesson_37_hero lessons/37-hero
-   cd lessons/37-hero
+     --project-name lesson_40_hero lessons/40-hero
+   cd lessons/40-hero
    rm -rf README.md .idea *.iml
-   cp ../36-alert-vs-toast/analysis_options.yaml .
+   cp ../39-breakpoints/analysis_options.yaml .
    ```
 
-2. **pubspec.yaml:** set the description to `"Lesson 37: Hero animation"`,
+2. **pubspec.yaml:** set the description to `"Lesson 40: Hero animation"`,
    then add the shared package and the notes asset:
 
    ```yaml
@@ -114,13 +114,13 @@ animation, dated 2026-10-26:
    flutter:
      uses-material-design: true
      assets:
-       - 37-hero.md
+       - 40-hero.md
    ```
 
    Add any package the lesson needs here (`flutter pub add <name>`), and
    mention that command in the lesson text.
 
-3. **Text:** add `37-hero.md`. Start it with `# Lesson 37: Hero animation`
+3. **Text:** add `40-hero.md`. Start it with `# Lesson 40: Hero animation`
    (the test checks that this heading matches the lesson info), then a
    `**Date:**` line, the explanation, the original snippet verbatim under
    `## Code`, a `## How it is adapted in this app` note, and the final
@@ -135,25 +135,25 @@ animation, dated 2026-10-26:
 
    /// This lesson, as the info button and the notes heading see it.
    const lesson = LessonInfo(
-     id: 37,
+     id: 40,
      title: 'Hero animation',
-     notesAsset: '37-hero.md',
+     notesAsset: '40-hero.md',
    );
 
    /// The whole lesson app; `main` runs it and the tests pump it.
-   const lessonApp = LessonApp(lesson: lesson, home: Lesson37Hero());
+   const lessonApp = LessonApp(lesson: lesson, home: Lesson40Hero());
 
    void main() => runApp(lessonApp);
 
-   class Lesson37Hero extends StatelessWidget {
-     const Lesson37Hero({super.key});
+   class Lesson40Hero extends StatelessWidget {
+     const Lesson40Hero({super.key});
 
      @override
      Widget build(BuildContext context) {
        return Scaffold(
          appBar: AppBar(
            title: const Text('Hero Tip'), // exactly as in the snippet
-           actions: const [LessonInfoButton(lessonId: 37)],
+           actions: const [LessonInfoButton(lessonId: 40)],
          ),
          body: const Placeholder(),
        );
@@ -168,10 +168,10 @@ animation, dated 2026-10-26:
    heading. Add tests for what the lesson teaches below them.
 
 6. In `web/index.html` and `web/manifest.json`, set the title to
-   `Lesson 37`.
+   `Lesson 40`.
 
 7. Run `flutter analyze && flutter test` in the folder (or
-   `scripts/check.sh 37`), then `flutter run -d chrome` to try it.
+   `scripts/check.sh 40`), then `flutter run -d chrome` to try it.
 
 ### The AppBar rule
 
@@ -191,5 +191,5 @@ Each lesson uses its snippet's own AppBar, with the info action added.
   using `LessonApp`, so the info button can still find the notes.
 - Lesson-local helpers that illustrate an idea, such as lesson 31's
   `AppButton`, lesson 33's `AppTokens`, lesson 35's `AppTextField` and
-  `PhoneNumberFormatter`, or lesson 36's `AppAlert`, live in the lesson's own `main.dart`. Since every lesson is its own project, two lessons can use the
+  `PhoneNumberFormatter`, lesson 36's `AppAlert`, or lesson 39's `breakpointFor`, live in the lesson's own `main.dart`. Since every lesson is its own project, two lessons can use the
   same name.
