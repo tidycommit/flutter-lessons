@@ -71,6 +71,8 @@ lessons/
     test/lesson_test.dart     Tests for this lesson
     web/                      Web runner from `flutter create`
   ...
+  37-shared-dialog/
+  38-shared-tabs/
   39-breakpoints/
 packages/
   lesson_kit/                 Shared code, used as a path dependency
@@ -95,6 +97,20 @@ animation, dated 2026-10-29:
 
    ```sh
    flutter create --empty --platforms web \
+     --project-name lesson_38_hero lessons/38-hero
+   cd lessons/38-hero
+   rm -rf README.md .idea *.iml
+   cp ../37-shared-dialog/analysis_options.yaml .
+   ```
+
+2. **pubspec.yaml:** set the description to `"Lesson 38: Hero animation"`,
+     --project-name lesson_39_hero lessons/39-hero
+   cd lessons/39-hero
+   rm -rf README.md .idea *.iml
+   cp ../38-shared-tabs/analysis_options.yaml .
+   ```
+
+2. **pubspec.yaml:** set the description to `"Lesson 39: Hero animation"`,
      --project-name lesson_40_hero lessons/40-hero
    cd lessons/40-hero
    rm -rf README.md .idea *.iml
@@ -191,5 +207,6 @@ Each lesson uses its snippet's own AppBar, with the info action added.
   using `LessonApp`, so the info button can still find the notes.
 - Lesson-local helpers that illustrate an idea, such as lesson 31's
   `AppButton`, lesson 33's `AppTokens`, lesson 35's `AppTextField` and
-  `PhoneNumberFormatter`, lesson 36's `AppAlert`, or lesson 39's `breakpointFor`, live in the lesson's own `main.dart`. Since every lesson is its own project, two lessons can use the
+  `PhoneNumberFormatter`, lesson 36's `AppAlert`, lesson 37's
+  `showAppConfirmDialog`, lesson 38's `AppTabs`, or lesson 39's `breakpointFor`, live in the lesson's own `main.dart`. Since every lesson is its own project, two lessons can use the
   same name.
