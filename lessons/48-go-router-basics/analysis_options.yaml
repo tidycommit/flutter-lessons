@@ -1,0 +1,9 @@
+# Static analysis settings. Run `flutter analyze` to check the project.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
