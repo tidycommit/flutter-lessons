@@ -1,0 +1,24 @@
+name: lesson_55_dio_interceptors
+description: "Lesson 55: Dio interceptors"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.11.1
+  lesson_kit:
+    path: ../../packages/lesson_kit
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - 55-dio-interceptors.md

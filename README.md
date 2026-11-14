@@ -84,6 +84,13 @@ lessons/
   47-side-effects/
   48-go-router-basics/
   49-route-params/
+  50-shell-route/
+  51-auth-redirect/
+  52-feature-routes/
+  53-deep-links/
+  54-dio-basics/
+  55-dio-interceptors/
+  56-repository-riverpod/
 packages/
   lesson_kit/                 Shared code, used as a path dependency
     lib/src/lesson_info.dart        LessonInfo: id, title, notes asset
@@ -96,25 +103,26 @@ scripts/
 ```
 
 Lessons 01–40 have no third-party runtime packages. From lesson 41 on, the
-Riverpod lessons (41 through 47) add `flutter_riverpod`, each to its own
-`pubspec.yaml` only. Lessons 48 and 49 add `go_router` the same way.
+Riverpod lessons (41 through 47, and 56) add `flutter_riverpod`, each to its
+own `pubspec.yaml` only. Lessons 48 through 53 add `go_router` the same way.
+Lessons 54 through 56 add `dio`.
 
 ## Adding a lesson
 
-Each daily lesson is a new folder. For example, a lesson 50 on a Hero
-animation, dated 2026-11-08:
+Each daily lesson is a new folder. For example, a lesson 57 on a Hero
+animation, dated 2026-11-15:
 
 1. **Create the project** from the repo root:
 
    ```sh
    flutter create --empty --platforms web \
-     --project-name lesson_50_hero lessons/50-hero
-   cd lessons/50-hero
+     --project-name lesson_57_hero lessons/57-hero
+   cd lessons/57-hero
    rm -rf README.md .idea *.iml
-   cp ../49-route-params/analysis_options.yaml .
+   cp ../56-repository-riverpod/analysis_options.yaml .
    ```
 
-2. **pubspec.yaml:** set the description to `"Lesson 50: Hero animation"`,
+2. **pubspec.yaml:** set the description to `"Lesson 57: Hero animation"`,
    then add the shared package and the notes asset:
 
    ```yaml
@@ -127,13 +135,13 @@ animation, dated 2026-11-08:
    flutter:
      uses-material-design: true
      assets:
-       - 50-hero.md
+       - 57-hero.md
    ```
 
    Add any package the lesson needs here (`flutter pub add <name>`), and
    mention that command in the lesson text.
 
-3. **Text:** add `50-hero.md`. Start it with `# Lesson 50: Hero animation`
+3. **Text:** add `57-hero.md`. Start it with `# Lesson 57: Hero animation`
    (the test checks that this heading matches the lesson info), then a
    `**Date:**` line, the explanation, the original snippet verbatim under
    `## Code`, a `## How it is adapted in this app` note, and the final
@@ -148,25 +156,25 @@ animation, dated 2026-11-08:
 
    /// This lesson, as the info button and the notes heading see it.
    const lesson = LessonInfo(
-     id: 50,
+     id: 57,
      title: 'Hero animation',
-     notesAsset: '50-hero.md',
+     notesAsset: '57-hero.md',
    );
 
    /// The whole lesson app; `main` runs it and the tests pump it.
-   const lessonApp = LessonApp(lesson: lesson, home: Lesson50Hero());
+   const lessonApp = LessonApp(lesson: lesson, home: Lesson57Hero());
 
    void main() => runApp(lessonApp);
 
-   class Lesson50Hero extends StatelessWidget {
-     const Lesson50Hero({super.key});
+   class Lesson57Hero extends StatelessWidget {
+     const Lesson57Hero({super.key});
 
      @override
      Widget build(BuildContext context) {
        return Scaffold(
          appBar: AppBar(
            title: const Text('Hero Tip'), // exactly as in the snippet
-           actions: const [LessonInfoButton(lessonId: 50)],
+           actions: const [LessonInfoButton(lessonId: 57)],
          ),
          body: const Placeholder(),
        );
@@ -181,10 +189,10 @@ animation, dated 2026-11-08:
    heading. Add tests for what the lesson teaches below them.
 
 6. In `web/index.html` and `web/manifest.json`, set the title to
-   `Lesson 50`.
+   `Lesson 57`.
 
 7. Run `flutter analyze && flutter test` in the folder (or
-   `scripts/check.sh 50`), then `flutter run -d chrome` to try it.
+   `scripts/check.sh 57`), then `flutter run -d chrome` to try it.
 
 ### The AppBar rule
 
@@ -203,16 +211,17 @@ Each lesson uses its snippet's own AppBar, with the info action added.
 - If a snippet has no AppBar, don't invent a title. Ask the teacher for one.
 - If the snippet's own `MaterialApp` is the lesson (named routes in lesson
   24, `ThemeData` in lesson 32, `MaterialApp.router` for `go_router` in
-  lessons 48 and 49), keep it, and wrap it in
+  lessons 48 through 53), keep it, and wrap it in
   `LessonScope(lesson: lesson, child: ...)` instead of using `LessonApp`, so
   the info button can still find the notes. The first screen still has the
   info button and no back arrow: the lesson is the whole app, so there is
   no outer lessons list to pop. Screens the router pushes keep their own
   way back (`context.pop()`, or `context.go('/')` when the snippet says so).
 - Do not const-call a widget whose constructor asserts on its arguments.
-  `NavigationBar` is not a const constructor for that reason. Keep a const
-  list literal for the arguments that can be const, such as
-  `destinations: const [...]` in lesson 46.
+  `NavigationBar` and `BottomNavigationBar` are not const constructors for
+  that reason. Keep a const list literal for the arguments that can be
+  const, such as `destinations: const [...]` in lesson 46 or `items: const
+  [...]` in lesson 50.
 - Lesson-local helpers that illustrate an idea, such as lesson 31's
   `AppButton`, lesson 33's `AppTokens`, lesson 35's `AppTextField` and
   `PhoneNumberFormatter`, lesson 36's `AppAlert`, lesson 37's
@@ -220,5 +229,9 @@ Each lesson uses its snippet's own AppBar, with the info action added.
   lesson 40's `StarRating`, lessons 41–43's `Counter` and `counterProvider`,
   lesson 43's `StaticHeader`, lesson 44's `FakeItems`, lesson 45's
   `TodoRepository`, lesson 46's `Session`, lesson 47's `LoadStatus`, or
-  lesson 49's `fruitColors`, live in the lesson's own `main.dart`. Since
+  lesson 49's `fruitColors`, lesson 50's `AppShell` and `TabPage`,
+  lesson 51's sign-in flag, lesson 52's `HomeRoutes` and `OrdersRoutes`,
+  lesson 53's `LinkBox`, lesson 54's `PostRepository`, lesson 55's
+  `FlakyAdapter`, or lesson 56's `PostsRepository` and `Post`, live in the
+  lesson's own `main.dart`. Since
   every lesson is its own project, two lessons can use the same name.
