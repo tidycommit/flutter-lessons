@@ -91,6 +91,13 @@ lessons/
   54-dio-basics/
   55-dio-interceptors/
   56-repository-riverpod/
+  57-error-mapping/
+  58-graphql-post/
+  59-feature-flags/
+  60-app-shapes/
+  61-feature-skeleton/
+  62-programmatic-vs-sdui/
+  63-test-harness/
 packages/
   lesson_kit/                 Shared code, used as a path dependency
     lib/src/lesson_info.dart        LessonInfo: id, title, notes asset
@@ -103,26 +110,26 @@ scripts/
 ```
 
 Lessons 01–40 have no third-party runtime packages. From lesson 41 on, the
-Riverpod lessons (41 through 47, and 56) add `flutter_riverpod`, each to its
-own `pubspec.yaml` only. Lessons 48 through 53 add `go_router` the same way.
-Lessons 54 through 56 add `dio`.
+Riverpod lessons (41 through 47, 56, 57, 59, 61, and 63) add
+`flutter_riverpod`, each to its own `pubspec.yaml` only. Lessons 48 through
+53 and 61 add `go_router` the same way. Lessons 54 through 58 add `dio`.
 
 ## Adding a lesson
 
-Each daily lesson is a new folder. For example, a lesson 57 on a Hero
-animation, dated 2026-11-15:
+Each daily lesson is a new folder. For example, a lesson 64 on a Hero
+animation, dated 2026-11-22:
 
 1. **Create the project** from the repo root:
 
    ```sh
    flutter create --empty --platforms web \
-     --project-name lesson_57_hero lessons/57-hero
-   cd lessons/57-hero
+     --project-name lesson_64_hero lessons/64-hero
+   cd lessons/64-hero
    rm -rf README.md .idea *.iml
-   cp ../56-repository-riverpod/analysis_options.yaml .
+   cp ../63-test-harness/analysis_options.yaml .
    ```
 
-2. **pubspec.yaml:** set the description to `"Lesson 57: Hero animation"`,
+2. **pubspec.yaml:** set the description to `"Lesson 64: Hero animation"`,
    then add the shared package and the notes asset:
 
    ```yaml
@@ -135,13 +142,13 @@ animation, dated 2026-11-15:
    flutter:
      uses-material-design: true
      assets:
-       - 57-hero.md
+       - 64-hero.md
    ```
 
    Add any package the lesson needs here (`flutter pub add <name>`), and
    mention that command in the lesson text.
 
-3. **Text:** add `57-hero.md`. Start it with `# Lesson 57: Hero animation`
+3. **Text:** add `64-hero.md`. Start it with `# Lesson 64: Hero animation`
    (the test checks that this heading matches the lesson info), then a
    `**Date:**` line, the explanation, the original snippet verbatim under
    `## Code`, a `## How it is adapted in this app` note, and the final
@@ -156,25 +163,25 @@ animation, dated 2026-11-15:
 
    /// This lesson, as the info button and the notes heading see it.
    const lesson = LessonInfo(
-     id: 57,
+     id: 64,
      title: 'Hero animation',
-     notesAsset: '57-hero.md',
+     notesAsset: '64-hero.md',
    );
 
    /// The whole lesson app; `main` runs it and the tests pump it.
-   const lessonApp = LessonApp(lesson: lesson, home: Lesson57Hero());
+   const lessonApp = LessonApp(lesson: lesson, home: Lesson64Hero());
 
    void main() => runApp(lessonApp);
 
-   class Lesson57Hero extends StatelessWidget {
-     const Lesson57Hero({super.key});
+   class Lesson64Hero extends StatelessWidget {
+     const Lesson64Hero({super.key});
 
      @override
      Widget build(BuildContext context) {
        return Scaffold(
          appBar: AppBar(
            title: const Text('Hero Tip'), // exactly as in the snippet
-           actions: const [LessonInfoButton(lessonId: 57)],
+           actions: const [LessonInfoButton(lessonId: 64)],
          ),
          body: const Placeholder(),
        );
@@ -189,10 +196,10 @@ animation, dated 2026-11-15:
    heading. Add tests for what the lesson teaches below them.
 
 6. In `web/index.html` and `web/manifest.json`, set the title to
-   `Lesson 57`.
+   `Lesson 64`.
 
 7. Run `flutter analyze && flutter test` in the folder (or
-   `scripts/check.sh 57`), then `flutter run -d chrome` to try it.
+   `scripts/check.sh 64`), then `flutter run -d chrome` to try it.
 
 ### The AppBar rule
 
@@ -210,8 +217,8 @@ Each lesson uses its snippet's own AppBar, with the info action added.
   its back arrow; they don't need the info action.
 - If a snippet has no AppBar, don't invent a title. Ask the teacher for one.
 - If the snippet's own `MaterialApp` is the lesson (named routes in lesson
-  24, `ThemeData` in lesson 32, `MaterialApp.router` for `go_router` in
-  lessons 48 through 53), keep it, and wrap it in
+  24 and 63, `ThemeData` in lesson 32, `MaterialApp.router` for `go_router`
+  in lessons 48 through 53 and 61), keep it, and wrap it in
   `LessonScope(lesson: lesson, child: ...)` instead of using `LessonApp`, so
   the info button can still find the notes. The first screen still has the
   info button and no back arrow: the lesson is the whole app, so there is
@@ -232,6 +239,10 @@ Each lesson uses its snippet's own AppBar, with the info action added.
   lesson 49's `fruitColors`, lesson 50's `AppShell` and `TabPage`,
   lesson 51's sign-in flag, lesson 52's `HomeRoutes` and `OrdersRoutes`,
   lesson 53's `LinkBox`, lesson 54's `PostRepository`, lesson 55's
-  `FlakyAdapter`, or lesson 56's `PostsRepository` and `Post`, live in the
-  lesson's own `main.dart`. Since
+  `FlakyAdapter`, lesson 56's `PostsRepository` and `Post`, lesson 57's
+  `AppFailure` and `fromDio`, lesson 58's `FakeGraphQlAdapter` and
+  `fetchHeroName`, lesson 59's `FeatureFlags`, lesson 60's `AppShape`,
+  lesson 61's `NotesRepository` and `NotesRoutes`, lesson 62's `inflate`,
+  or lesson 63's `DataSetNotifier`, live in the lesson's
+  own `main.dart`. Since
   every lesson is its own project, two lessons can use the same name.
