@@ -1,0 +1,24 @@
+name: lesson_58_graphql_post
+description: "Lesson 58: GraphQL-style POST (query in the body)"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.11.1
+  lesson_kit:
+    path: ../../packages/lesson_kit
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - 58-graphql-post.md
